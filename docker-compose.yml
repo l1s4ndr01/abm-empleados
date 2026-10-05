@@ -1,0 +1,24 @@
+# Base de datos de desarrollo de SIMEP.
+# Levantar: docker compose up -d   |   Apagar: docker compose down
+# Usa el puerto 5433 porque el 5432 lo ocupa el PostgreSQL instalado en Windows.
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: simep-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: simep
+      POSTGRES_PASSWORD: simep
+      POSTGRES_DB: simep
+    ports:
+      - "5433:5432"
+    volumes:
+      - simep-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simep -d simep"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  simep-db-data:

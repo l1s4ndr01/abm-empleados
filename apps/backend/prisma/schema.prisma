@@ -1,0 +1,106 @@
+// Modelo de datos de SIMEP - Registro de horas por empleado, proyecto y cliente.
+// Basado en el boceto de "Documentacion de la ABM" (flujo tipo Clockify).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  ADMIN
+  EMPLEADO
+}
+
+// Usuarios del sistema: cada persona que registra horas.
+// Login con Google: el admin da de alta el email y en el primer ingreso
+// se guarda el googleId. Si el email no existe o activo = false, no entra.
+model Empleado {
+  id        Int      @id @default(autoincrement())
+  googleId  String?  @unique @map("google_id") // null hasta el primer ingreso
+  email     String   @unique
+  nombre    String
+  apellido  String
+  fotoUrl   String?  @map("foto_url")
+  rol       Rol      @default(EMPLEADO)
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  registros RegistroTiempo[]
+
+  @@map("empleados")
+}
+
+model Cliente {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  email     String?
+  direccion String?
+  nota      String?
+  archivado Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  proyectos Proyecto[]
+
+  @@map("clientes")
+}
+
+// Todos los empleados ven y cargan horas en todos los proyectos.
+model Proyecto {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  clienteId Int      @map("cliente_id")
+  color     String   @default("#7986CB") @db.Char(7) // hex
+  archivado Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  cliente   Cliente          @relation(fields: [clienteId], references: [id], onDelete: Restrict)
+  tareas    Tarea[]
+  registros RegistroTiempo[]
+
+  @@unique([clienteId, nombre])
+  @@map("proyectos")
+}
+
+model Tarea {
+  id         Int      @id @default(autoincrement())
+  nombre     String
+  proyectoId Int      @map("proyecto_id")
+  completada Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  proyecto  Proyecto         @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  registros RegistroTiempo[]
+
+  @@unique([proyectoId, nombre])
+  @@map("tareas")
+}
+
+// "Nueva entrada de tiempo", cargada a mano. La duración se calcula como fin - inicio.
+// El backend valida que fin > inicio y que la tarea pertenezca al proyecto.
+model RegistroTiempo {
+  id          Int      @id @default(autoincrement())
+  empleadoId  Int      @map("empleado_id")
+  proyectoId  Int      @map("proyecto_id")
+  tareaId     Int?     @map("tarea_id")
+  descripcion String?  // "¿En qué has trabajado?"
+  inicio      DateTime @db.Timestamptz
+  fin         DateTime @db.Timestamptz
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  empleado Empleado @relation(fields: [empleadoId], references: [id], onDelete: Restrict)
+  proyecto Proyecto @relation(fields: [proyectoId], references: [id], onDelete: Restrict)
+  tarea    Tarea?   @relation(fields: [tareaId], references: [id], onDelete: SetNull)
+
+  @@index([empleadoId, inicio])
+  @@index([proyectoId, inicio])
+  @@map("registros_tiempo")
+}

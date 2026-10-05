@@ -10,6 +10,9 @@
 - Levantar Backend (NestJS): `npm run start:dev -w apps/backend`
 - Levantar Frontend (Next.js): `npm run dev -w apps/frontend`
 - Correr Linter: `npm run lint -w apps/backend` o `npm run lint -w apps/frontend`
+- Base de datos (PostgreSQL en Docker, puerto 5433): `docker compose up -d` / `docker compose down`
+- Migraciones Prisma (desde `apps/backend`): `npx prisma migrate dev --name <nombre>`
+- Explorar la base: `npx prisma studio` (desde `apps/backend`)
 
 ## Guías de Desarrollo para Claude
 - En NestJS, sigue una arquitectura modular: organiza la funcionalidad en módulos y separa responsabilidades entre controladores y servicios.

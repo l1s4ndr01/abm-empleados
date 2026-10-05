@@ -1,0 +1,50 @@
+### Pruebas del módulo Clientes (extensión REST Client de VS Code).
+### Hacer clic en "Send Request" arriba de cada pedido.
+@baseUrl = http://localhost:3000
+
+### Listar clientes activos
+GET {{baseUrl}}/clientes
+
+### Listar todos, incluidos los archivados
+GET {{baseUrl}}/clientes?archivados=true
+
+### Ver un cliente
+GET {{baseUrl}}/clientes/1
+
+### Crear un cliente
+POST {{baseUrl}}/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Cliente de prueba 42",
+  "email": "contacto@cliente.com",
+  "direccion": "Av. Siempre Viva 742",
+  "nota": "Creado desde REST Client"
+}
+
+### Modificar un cliente
+PATCH {{baseUrl}}/clientes/1
+Content-Type: application/json
+
+{
+  "direccion": "Nueva dirección dd23"
+}
+
+### Archivar un cliente (no lo borra)
+DELETE {{baseUrl}}/clientes/1
+
+### Desarchivar un cliente
+PATCH {{baseUrl}}/clientes/1
+Content-Type: application/json
+
+{
+  "archivado": false
+}
+
+### Error esperado: falta el nombre (400)
+POST {{baseUrl}}/clientes
+Content-Type: application/json
+
+{
+  "email": "no-es-un-email"
+}
