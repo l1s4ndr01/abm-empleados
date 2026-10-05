@@ -1,0 +1,31 @@
+import { Transform } from 'class-transformer';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsPositive,
+  IsString,
+  Matches,
+  MaxLength,
+  ValidateIf,
+} from 'class-validator';
+import { trim } from '../../common/transformers';
+
+export class CreateProyectoDto {
+  @Transform(trim)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  nombre: string;
+
+  @IsInt()
+  @IsPositive()
+  clienteId: number;
+
+  // Opcional: si no viene, la base usa el color por defecto.
+  @ValidateIf((o: CreateProyectoDto) => o.color !== undefined)
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, {
+    message: 'color debe ser un hexadecimal como #7986CB',
+  })
+  color?: string;
+}

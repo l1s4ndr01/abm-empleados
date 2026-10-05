@@ -1,0 +1,54 @@
+### Pruebas del módulo Proyectos (extensión REST Client de VS Code).
+### Hacer clic en "Send Request" arriba de cada pedido.
+### Necesita al menos un cliente creado (ver clientes.http).
+@baseUrl = http://localhost:3000
+
+### Listar proyectos activos
+GET {{baseUrl}}/proyectos
+
+### Listar los proyectos de un cliente
+GET {{baseUrl}}/proyectos?clienteId=1
+
+### Listar todos, incluidos los archivados
+GET {{baseUrl}}/proyectos?archivados=true
+
+### Ver un proyecto
+GET {{baseUrl}}/proyectos/1
+
+### Crear un proyecto (color es opcional)
+POST {{baseUrl}}/proyectos
+Content-Type: application/json
+
+{
+  "nombre": "Proyecto de prueba",
+  "clienteId": 1,
+  "color": "#E57373"
+}
+
+### Modificar un proyecto
+PATCH {{baseUrl}}/proyectos/1
+Content-Type: application/json
+
+{
+  "color": "#4DB6AC"
+}
+
+### Archivar un proyecto (no lo borra)
+DELETE {{baseUrl}}/proyectos/1
+
+### Desarchivar un proyecto
+PATCH {{baseUrl}}/proyectos/1
+Content-Type: application/json
+
+{
+  "archivado": false
+}
+
+### Error esperado: el cliente no existe (400)
+POST {{baseUrl}}/proyectos
+Content-Type: application/json
+
+{
+  "nombre": "Proyecto huérfano",
+  "clienteId": 999
+}

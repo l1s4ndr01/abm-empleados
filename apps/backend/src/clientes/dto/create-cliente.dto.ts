@@ -6,9 +6,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-
-export const trim = ({ value }: { value: unknown }) =>
-  typeof value === 'string' ? value.trim() : value;
+import { trim } from '../../common/transformers';
 
 export class CreateClienteDto {
   @Transform(trim)

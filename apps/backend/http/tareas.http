@@ -1,0 +1,50 @@
+### Pruebas del módulo Tareas (extensión REST Client de VS Code).
+### Hacer clic en "Send Request" arriba de cada pedido.
+### Necesita al menos un proyecto creado (ver proyectos.http).
+@baseUrl = http://localhost:3000
+
+### Listar todas las tareas
+GET {{baseUrl}}/tareas
+
+### Listar las tareas pendientes de un proyecto
+GET {{baseUrl}}/tareas?proyectoId=1&completada=false
+
+### Ver una tarea
+GET {{baseUrl}}/tareas/1
+
+### Crear una tarea
+POST {{baseUrl}}/tareas
+Content-Type: application/json
+
+{
+  "nombre": "Relevamiento",
+  "proyectoId": 1
+}
+
+### Renombrar una tarea
+PATCH {{baseUrl}}/tareas/1
+Content-Type: application/json
+
+{
+  "nombre": "Relevamiento inicial"
+}
+
+### Marcar una tarea como completada
+PATCH {{baseUrl}}/tareas/1
+Content-Type: application/json
+
+{
+  "completada": true
+}
+
+### Borrar una tarea (solo si no tiene horas cargadas)
+DELETE {{baseUrl}}/tareas/1
+
+### Error esperado: el proyecto no existe (400)
+POST {{baseUrl}}/tareas
+Content-Type: application/json
+
+{
+  "nombre": "Tarea huérfana",
+  "proyectoId": 999
+}

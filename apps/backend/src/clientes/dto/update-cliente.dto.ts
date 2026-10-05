@@ -8,7 +8,8 @@ import {
   MaxLength,
   ValidateIf,
 } from 'class-validator';
-import { CreateClienteDto, trim } from './create-cliente.dto';
+import { trim } from '../../common/transformers';
+import { CreateClienteDto } from './create-cliente.dto';
 
 export class UpdateClienteDto extends PartialType(
   OmitType(CreateClienteDto, ['nombre'] as const),
