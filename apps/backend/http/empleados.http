@@ -1,0 +1,63 @@
+### Pruebas del módulo Empleados (extensión REST Client de VS Code).
+### Hacer clic en "Send Request" arriba de cada pedido.
+@baseUrl = http://localhost:3000
+
+### Listar empleados activos
+GET {{baseUrl}}/empleados
+
+### Listar todos, incluidos los inactivos
+GET {{baseUrl}}/empleados?inactivos=true
+
+### Ver un empleado
+GET {{baseUrl}}/empleados/1
+
+### Dar de alta un administrador (con la cuenta de Google con la que va a entrar)
+POST {{baseUrl}}/empleados
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "nombre": "Ana",
+  "apellido": "Pérez",
+  "rol": "ADMIN"
+}
+
+### Dar de alta un empleado (rol EMPLEADO por defecto)
+POST {{baseUrl}}/empleados
+Content-Type: application/json
+
+{
+  "email": "empleado@gmail.com",
+  "nombre": "Juan",
+  "apellido": "Gómez"
+}
+
+### Modificar un empleado
+PATCH {{baseUrl}}/empleados/2
+Content-Type: application/json
+
+{
+  "rol": "ADMIN"
+}
+
+### Desactivar un empleado (no lo borra; ya no puede entrar)
+DELETE {{baseUrl}}/empleados/2
+
+### Reactivar un empleado
+PATCH {{baseUrl}}/empleados/2
+Content-Type: application/json
+
+{
+  "activo": true
+}
+
+### Error esperado: rol inválido (400)
+POST {{baseUrl}}/empleados
+Content-Type: application/json
+
+{
+  "email": "otro@gmail.com",
+  "nombre": "X",
+  "apellido": "Y",
+  "rol": "JEFE"
+}
