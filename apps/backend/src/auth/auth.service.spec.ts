@@ -43,6 +43,16 @@ describe('AuthService.loginConGoogle', () => {
     },
   };
 
+  // verifyIdToken también tiene una versión con callback (que devuelve void);
+  // se espía la versión con promesa, que es la que usa el servicio.
+  const espiarGoogle = () =>
+    jest.spyOn(
+      service['google'],
+      'verifyIdToken',
+    ) as unknown as jest.SpyInstance<
+      Promise<{ getPayload: () => TokenPayload }>
+    >;
+
   beforeEach(() => {
     jest.clearAllMocks();
     googlePayload = {
@@ -59,11 +69,7 @@ describe('AuthService.loginConGoogle', () => {
       { getOrThrow: () => 'client-id' } as unknown as ConfigService,
     );
     // Simula la verificación de Google sin salir a internet.
-    jest
-      .spyOn(service['google'], 'verifyIdToken')
-      .mockImplementation(() =>
-        Promise.resolve({ getPayload: () => googlePayload }),
-      );
+    espiarGoogle().mockResolvedValue({ getPayload: () => googlePayload });
   });
 
   it('primer ingreso: encuentra por email (sin importar mayúsculas) y vincula googleId y foto', async () => {
@@ -113,9 +119,7 @@ describe('AuthService.loginConGoogle', () => {
   });
 
   it('rechaza un token que Google no valida', async () => {
-    jest
-      .spyOn(service['google'], 'verifyIdToken')
-      .mockImplementation(() => Promise.reject(new Error('firma inválida')));
+    espiarGoogle().mockRejectedValue(new Error('firma inválida'));
     await expect(service.loginConGoogle('cred')).rejects.toThrow(
       'El token de Google es inválido',
     );

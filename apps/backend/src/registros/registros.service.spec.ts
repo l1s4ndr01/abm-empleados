@@ -55,7 +55,9 @@ describe('RegistrosService', () => {
     tarea: { findUnique: jest.fn(porId(() => tareas)) },
     registroTiempo: {
       findUnique: jest.fn(porId(() => registros)),
-      findMany: jest.fn(() => Promise.resolve(registros)),
+      findMany: jest.fn((_: { where: Partial<RegistroTiempo> }) =>
+        Promise.resolve(registros),
+      ),
       // Simula el filtro de solapamiento de la base.
       findFirst: jest.fn(
         ({
@@ -120,11 +122,10 @@ describe('RegistrosService', () => {
 
   it('crea el registro a nombre del logueado y devuelve la duración calculada', async () => {
     const res = await service.create(ana, { ...nuevo, tareaId: 10 });
-    expect(prisma.registroTiempo.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ empleadoId: ana.id, tareaId: 10 }),
-      }),
-    );
+    expect(prisma.registroTiempo.create.mock.calls[0][0].data).toMatchObject({
+      empleadoId: ana.id,
+      tareaId: 10,
+    });
     // 1 h 30 min. La tarea está completada y aun así se acepta.
     expect(res.duracionSegundos).toBe(5400);
   });
@@ -177,11 +178,9 @@ describe('RegistrosService', () => {
 
   it('el ADMIN puede cargar horas a nombre de otro empleado activo', async () => {
     await service.create(admin, { ...nuevo, empleadoId: beto.id });
-    expect(prisma.registroTiempo.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ empleadoId: beto.id }),
-      }),
-    );
+    expect(prisma.registroTiempo.create.mock.calls[0][0].data).toMatchObject({
+      empleadoId: beto.id,
+    });
   });
 
   it('un EMPLEADO no puede ver registros ajenos (403)', async () => {
@@ -191,10 +190,8 @@ describe('RegistrosService', () => {
 
   it('el listado de un EMPLEADO se limita a sus registros', async () => {
     await service.findAll(ana, {});
-    expect(prisma.registroTiempo.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ empleadoId: ana.id }),
-      }),
+    expect(prisma.registroTiempo.findMany.mock.calls[0][0].where).toMatchObject(
+      { empleadoId: ana.id },
     );
     await expect(service.findAll(ana, { empleadoId: beto.id })).rejects.toThrow(
       ForbiddenException,

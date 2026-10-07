@@ -15,4 +15,5 @@ async function bootstrap() {
   );
   await app.listen(3000);
 }
-bootstrap();
+// void: si el arranque falla, Node muestra el error y corta el proceso.
+void bootstrap();
