@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { EmpleadosModule } from './empleados/empleados.module';
 import { ProyectosModule } from './proyectos/proyectos.module';
+import { RegistrosModule } from './registros/registros.module';
 import { TareasModule } from './tareas/tareas.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -32,6 +33,7 @@ import { PrismaModule } from './prisma/prisma.module';
     EmpleadosModule,
     ProyectosModule,
     TareasModule,
+    RegistrosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,0 +1,104 @@
+### Pruebas del módulo Registro de tiempo (extensión REST Client de VS Code).
+### Hacer clic en "Send Request" arriba de cada pedido.
+### Necesita al menos un proyecto creado (ver proyectos.http).
+### Las fechas van con zona horaria: -03:00 es la hora argentina.
+@baseUrl = http://localhost:3000
+# Pegá acá el accessToken que devuelve el login (ver auth.http).
+@token = pegar-aca-el-accessToken
+
+### Listar mis registros (el ADMIN ve los de todos)
+GET {{baseUrl}}/registros
+Authorization: Bearer {{token}}
+
+### Listar los registros de un día
+GET {{baseUrl}}/registros?desde=2026-10-07T00:00:00-03:00&hasta=2026-10-08T00:00:00-03:00
+Authorization: Bearer {{token}}
+
+### Listar los registros de un proyecto y un empleado (empleadoId: solo ADMIN)
+GET {{baseUrl}}/registros?proyectoId=1&empleadoId=1
+Authorization: Bearer {{token}}
+
+### Ver un registro
+GET {{baseUrl}}/registros/1
+Authorization: Bearer {{token}}
+
+### Cargar horas (tarea y descripción son opcionales)
+POST {{baseUrl}}/registros
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "proyectoId": 1,
+  "tareaId": 1,
+  "descripcion": "Relevamiento con el cliente",
+  "inicio": "2026-10-07T09:00:00-03:00",
+  "fin": "2026-10-07T10:30:00-03:00"
+}
+
+### Cargar horas a nombre de otro empleado (solo ADMIN)
+POST {{baseUrl}}/registros
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "empleadoId": 2,
+  "proyectoId": 1,
+  "inicio": "2026-10-07T14:00:00-03:00",
+  "fin": "2026-10-07T16:00:00-03:00"
+}
+
+### Corregir el horario de un registro
+PATCH {{baseUrl}}/registros/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fin": "2026-10-07T11:00:00-03:00"
+}
+
+### Quitar la tarea y la descripción de un registro
+PATCH {{baseUrl}}/registros/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tareaId": null,
+  "descripcion": null
+}
+
+### Borrar un registro
+DELETE {{baseUrl}}/registros/1
+Authorization: Bearer {{token}}
+
+### Error esperado: el fin es anterior al inicio (400)
+POST {{baseUrl}}/registros
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "proyectoId": 1,
+  "inicio": "2026-10-07T12:00:00-03:00",
+  "fin": "2026-10-07T11:00:00-03:00"
+}
+
+### Error esperado: se superpone con el primer registro (409)
+POST {{baseUrl}}/registros
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "proyectoId": 1,
+  "inicio": "2026-10-07T10:00:00-03:00",
+  "fin": "2026-10-07T12:00:00-03:00"
+}
+
+### Error esperado: fecha sin zona horaria (400)
+POST {{baseUrl}}/registros
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "proyectoId": 1,
+  "inicio": "2026-10-07T09:00:00",
+  "fin": "2026-10-07T10:00:00"
+}

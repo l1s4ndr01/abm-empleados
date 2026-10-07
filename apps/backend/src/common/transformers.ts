@@ -5,3 +5,7 @@ export const trim = ({ value }: { value: unknown }) =>
 // Los emails se guardan en minúsculas para que coincidan con el de Google al loguearse.
 export const normalizarEmail = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim().toLowerCase() : value;
+
+// Textos opcionales: se recortan, y si quedan vacíos se guardan como null.
+export const trimONull = ({ value }: { value: unknown }) =>
+  typeof value === 'string' ? value.trim() || null : value;
