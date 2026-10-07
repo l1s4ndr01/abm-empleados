@@ -1,3 +1,5 @@
+import { Rol } from '@prisma/client';
+import { Roles } from '../auth/decorators';
 import {
   Body,
   Controller,
@@ -34,17 +36,20 @@ export class TareasController {
     return this.tareasService.findOne(id);
   }
 
+  @Roles(Rol.ADMIN)
   @Post()
   create(@Body() dto: CreateTareaDto) {
     return this.tareasService.create(dto);
   }
 
+  @Roles(Rol.ADMIN)
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTareaDto) {
     return this.tareasService.update(id, dto);
   }
 
   // Borra la tarea de verdad (solo si no tiene horas cargadas).
+  @Roles(Rol.ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.tareasService.remove(id);

@@ -1,0 +1,15 @@
+### Login con Google (extensión REST Client de VS Code).
+###
+### Para obtener un token:
+###   1. Levantá el backend y abrí en el navegador http://localhost:3000/auth/prueba
+###   2. Iniciá sesión con Google y copiá el "accessToken" de la respuesta.
+###   3. Pegalo en la variable @token de este archivo y de los demás .http.
+@baseUrl = http://localhost:3000
+@token = pegar-aca-el-accessToken
+
+### Ver quién soy (empleado logueado)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### Error esperado: sin token (401)
+GET {{baseUrl}}/clientes

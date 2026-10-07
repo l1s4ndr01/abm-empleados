@@ -2,18 +2,24 @@
 ### Hacer clic en "Send Request" arriba de cada pedido.
 ### Necesita al menos un proyecto creado (ver proyectos.http).
 @baseUrl = http://localhost:3000
+# Pegá acá el accessToken que devuelve el login (ver auth.http).
+@token = pegar-aca-el-accessToken
 
 ### Listar todas las tareas
 GET {{baseUrl}}/tareas
+Authorization: Bearer {{token}}
 
 ### Listar las tareas pendientes de un proyecto
 GET {{baseUrl}}/tareas?proyectoId=1&completada=false
+Authorization: Bearer {{token}}
 
 ### Ver una tarea
 GET {{baseUrl}}/tareas/1
+Authorization: Bearer {{token}}
 
 ### Crear una tarea
 POST {{baseUrl}}/tareas
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -23,6 +29,7 @@ Content-Type: application/json
 
 ### Renombrar una tarea
 PATCH {{baseUrl}}/tareas/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -31,6 +38,7 @@ Content-Type: application/json
 
 ### Marcar una tarea como completada
 PATCH {{baseUrl}}/tareas/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -39,9 +47,11 @@ Content-Type: application/json
 
 ### Borrar una tarea (solo si no tiene horas cargadas)
 DELETE {{baseUrl}}/tareas/1
+Authorization: Bearer {{token}}
 
 ### Error esperado: el proyecto no existe (400)
 POST {{baseUrl}}/tareas
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {

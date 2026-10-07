@@ -1,18 +1,24 @@
 ### Pruebas del módulo Empleados (extensión REST Client de VS Code).
 ### Hacer clic en "Send Request" arriba de cada pedido.
 @baseUrl = http://localhost:3000
+# Pegá acá el accessToken que devuelve el login (ver auth.http).
+@token = pegar-aca-el-accessToken
 
 ### Listar empleados activos
 GET {{baseUrl}}/empleados
+Authorization: Bearer {{token}}
 
 ### Listar todos, incluidos los inactivos
 GET {{baseUrl}}/empleados?inactivos=true
+Authorization: Bearer {{token}}
 
 ### Ver un empleado
 GET {{baseUrl}}/empleados/1
+Authorization: Bearer {{token}}
 
 ### Dar de alta un administrador (con la cuenta de Google con la que va a entrar)
 POST {{baseUrl}}/empleados
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -24,6 +30,7 @@ Content-Type: application/json
 
 ### Dar de alta un empleado (rol EMPLEADO por defecto)
 POST {{baseUrl}}/empleados
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -34,6 +41,7 @@ Content-Type: application/json
 
 ### Modificar un empleado
 PATCH {{baseUrl}}/empleados/2
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -42,9 +50,11 @@ Content-Type: application/json
 
 ### Desactivar un empleado (no lo borra; ya no puede entrar)
 DELETE {{baseUrl}}/empleados/2
+Authorization: Bearer {{token}}
 
 ### Reactivar un empleado
 PATCH {{baseUrl}}/empleados/2
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -53,6 +63,7 @@ Content-Type: application/json
 
 ### Error esperado: rol inválido (400)
 POST {{baseUrl}}/empleados
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {

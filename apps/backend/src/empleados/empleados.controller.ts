@@ -1,3 +1,5 @@
+import { Rol } from '@prisma/client';
+import { Roles } from '../auth/decorators';
 import {
   Body,
   Controller,
@@ -15,6 +17,8 @@ import { CreateEmpleadoDto } from './dto/create-empleado.dto';
 import { UpdateEmpleadoDto } from './dto/update-empleado.dto';
 import { EmpleadosService } from './empleados.service';
 
+// Todo el ABM de empleados es solo para administradores.
+@Roles(Rol.ADMIN)
 @Controller('empleados')
 export class EmpleadosController {
   constructor(private readonly empleadosService: EmpleadosService) {}

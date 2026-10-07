@@ -1,18 +1,24 @@
 ### Pruebas del módulo Clientes (extensión REST Client de VS Code).
 ### Hacer clic en "Send Request" arriba de cada pedido.
 @baseUrl = http://localhost:3000
+# Pegá acá el accessToken que devuelve el login (ver auth.http).
+@token = pegar-aca-el-accessToken
 
 ### Listar clientes activos
 GET {{baseUrl}}/clientes
+Authorization: Bearer {{token}}
 
 ### Listar todos, incluidos los archivados
 GET {{baseUrl}}/clientes?archivados=true
+Authorization: Bearer {{token}}
 
 ### Ver un cliente
 GET {{baseUrl}}/clientes/1
+Authorization: Bearer {{token}}
 
 ### Crear un cliente
 POST {{baseUrl}}/clientes
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -24,6 +30,7 @@ Content-Type: application/json
 
 ### Modificar un cliente
 PATCH {{baseUrl}}/clientes/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -32,9 +39,11 @@ Content-Type: application/json
 
 ### Archivar un cliente (no lo borra)
 DELETE {{baseUrl}}/clientes/1
+Authorization: Bearer {{token}}
 
 ### Desarchivar un cliente
 PATCH {{baseUrl}}/clientes/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -43,6 +52,7 @@ Content-Type: application/json
 
 ### Error esperado: falta el nombre (400)
 POST {{baseUrl}}/clientes
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {

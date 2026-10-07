@@ -1,3 +1,5 @@
+import { Rol } from '@prisma/client';
+import { Roles } from '../auth/decorators';
 import {
   Body,
   Controller,
@@ -38,11 +40,13 @@ export class ProyectosController {
     return this.proyectosService.findOne(id);
   }
 
+  @Roles(Rol.ADMIN)
   @Post()
   create(@Body() dto: CreateProyectoDto) {
     return this.proyectosService.create(dto);
   }
 
+  @Roles(Rol.ADMIN)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -52,6 +56,7 @@ export class ProyectosController {
   }
 
   // DELETE archiva el proyecto (no lo borra de la base).
+  @Roles(Rol.ADMIN)
   @Delete(':id')
   archivar(@Param('id', ParseIntPipe) id: number) {
     return this.proyectosService.archivar(id);
