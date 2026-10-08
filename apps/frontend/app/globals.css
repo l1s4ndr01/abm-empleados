@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
+/* Paleta de SIMEP (la misma de los bocetos). Se usan como clases de
+   Tailwind: bg-superficie, text-tenue, border-linea, text-acento, etc. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --fondo: #f4f6f7;
+  --superficie: #ffffff;
+  --texto: #1d2a30;
+  --tenue: #5f6f77;
+  --linea: #d5dde1;
+  --gris: #eef2f4;
+  --acento: #1f6f78;
+  --acento-suave: #e2f0f1;
+  --aviso: #9a5b00;
+  --aviso-suave: #fff3df;
+  --peligro: #a33a3a;
+  --peligro-suave: #fbe9e9;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --fondo: #12191c;
+    --superficie: #1a2327;
+    --texto: #e4ecef;
+    --tenue: #98a8b0;
+    --linea: #2f3c42;
+    --gris: #222d32;
+    --acento: #5fb7c0;
+    --acento-suave: #1d3438;
+    --aviso: #f0b75c;
+    --aviso-suave: #3a2e17;
+    --peligro: #f08a8a;
+    --peligro-suave: #3d2222;
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-fondo: var(--fondo);
+  --color-superficie: var(--superficie);
+  --color-texto: var(--texto);
+  --color-tenue: var(--tenue);
+  --color-linea: var(--linea);
+  --color-gris: var(--gris);
+  --color-acento: var(--acento);
+  --color-acento-suave: var(--acento-suave);
+  --color-aviso: var(--aviso);
+  --color-aviso-suave: var(--aviso-suave);
+  --color-peligro: var(--peligro);
+  --color-peligro-suave: var(--peligro-suave);
+  --font-sans: var(--font-instrument-sans);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
 }
