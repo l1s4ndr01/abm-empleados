@@ -15,6 +15,22 @@ export interface Empleado {
   fotoUrl: string | null;
   rol: Rol;
   activo: boolean;
+  // null hasta que entra por primera vez con Google.
+  googleId: string | null;
+}
+
+// POST /empleados. Sin rol, el backend usa EMPLEADO.
+export interface NuevoEmpleado {
+  email: string;
+  nombre: string;
+  apellido: string;
+  rol?: Rol;
+}
+
+// PATCH /empleados/:id. El email solo se puede cambiar antes de que entre
+// con Google. { activo: true } lo reactiva.
+export interface CambiosEmpleado extends Partial<NuevoEmpleado> {
+  activo?: boolean;
 }
 
 export interface Cliente {

@@ -10,9 +10,10 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { normalizarEmail, trim } from '../../common/transformers';
+import type { CambiosEmpleado } from '@simep/tipos';
 
 // Los campos son opcionales, pero si vienen no pueden ser null.
-export class UpdateEmpleadoDto {
+export class UpdateEmpleadoDto implements CambiosEmpleado {
   // Solo se puede cambiar si el empleado todavía no entró con Google.
   @Transform(normalizarEmail)
   @ValidateIf((o: UpdateEmpleadoDto) => o.email !== undefined)

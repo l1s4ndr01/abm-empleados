@@ -9,10 +9,11 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { normalizarEmail, trim } from '../../common/transformers';
+import type { NuevoEmpleado } from '@simep/tipos';
 
 // Alta de un empleado por parte del admin. googleId y fotoUrl no se cargan
 // acá: los completa el login con Google la primera vez que el empleado entra.
-export class CreateEmpleadoDto {
+export class CreateEmpleadoDto implements NuevoEmpleado {
   @Transform(normalizarEmail)
   @IsEmail()
   email: string;

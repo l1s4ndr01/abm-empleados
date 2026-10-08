@@ -4,12 +4,11 @@ import { EnlaceMenu } from "@/componentes/enlace-menu";
 import { Logo } from "@/componentes/logo";
 import { obtenerEmpleadoActual } from "@/lib/empleado-actual";
 
-// Pantallas de la administración. Las que no tienen ruta todavía no están.
-// Las tareas se manejan dentro de Proyectos.
-const ADMINISTRACION: { nombre: string; href?: string }[] = [
+// Pantallas de la administración. Las tareas se manejan dentro de Proyectos.
+const ADMINISTRACION = [
   { nombre: "Clientes", href: "/admin/clientes" },
   { nombre: "Proyectos", href: "/admin/proyectos" },
-  { nombre: "Empleados" },
+  { nombre: "Empleados", href: "/admin/empleados" },
 ];
 
 export default async function AppLayout({ children }: LayoutProps<"/">) {
@@ -26,24 +25,11 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             <p className="px-3 pt-5 pb-1 text-xs font-semibold tracking-wider text-tenue uppercase">
               Administración
             </p>
-            {ADMINISTRACION.map(({ nombre, href }) =>
-              href ? (
-                <EnlaceMenu key={nombre} href={href}>
-                  {nombre}
-                </EnlaceMenu>
-              ) : (
-                <span
-                  key={nombre}
-                  className="flex items-center justify-between px-3 py-2 text-sm text-tenue/70"
-                  title="Próximamente"
-                >
-                  {nombre}
-                  <span className="text-[10px] tracking-wider uppercase">
-                    Pronto
-                  </span>
-                </span>
-              ),
-            )}
+            {ADMINISTRACION.map(({ nombre, href }) => (
+              <EnlaceMenu key={nombre} href={href}>
+                {nombre}
+              </EnlaceMenu>
+            ))}
           </>
         )}
       </aside>
