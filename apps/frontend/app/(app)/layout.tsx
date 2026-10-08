@@ -8,7 +8,7 @@ import { obtenerEmpleadoActual } from "@/lib/empleado-actual";
 // Las tareas se manejan dentro de Proyectos.
 const ADMINISTRACION: { nombre: string; href?: string }[] = [
   { nombre: "Clientes", href: "/admin/clientes" },
-  { nombre: "Proyectos" },
+  { nombre: "Proyectos", href: "/admin/proyectos" },
   { nombre: "Empleados" },
 ];
 

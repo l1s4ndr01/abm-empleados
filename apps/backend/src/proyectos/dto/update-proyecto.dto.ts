@@ -10,10 +10,11 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { trim } from '../../common/transformers';
+import type { CambiosProyecto } from '@simep/tipos';
 
 // Todos los campos son opcionales, pero si vienen no pueden ser null:
 // en la base son obligatorios (IsOptional dejaría pasar null).
-export class UpdateProyectoDto {
+export class UpdateProyectoDto implements CambiosProyecto {
   @Transform(trim)
   @ValidateIf((o: UpdateProyectoDto) => o.nombre !== undefined)
   @IsString()

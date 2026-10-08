@@ -50,12 +50,36 @@ export interface Proyecto {
   cliente: { id: number; nombre: string };
 }
 
+// POST /proyectos. Sin color, el backend usa #7986CB.
+export interface NuevoProyecto {
+  nombre: string;
+  clienteId: number;
+  color?: string;
+}
+
+// PATCH /proyectos/:id. { archivado: false } lo restaura (si su cliente está activo).
+export interface CambiosProyecto extends Partial<NuevoProyecto> {
+  archivado?: boolean;
+}
+
 export interface Tarea {
   id: number;
   nombre: string;
   proyectoId: number;
   completada: boolean;
   proyecto: { id: number; nombre: string };
+}
+
+// POST /tareas
+export interface NuevaTarea {
+  nombre: string;
+  proyectoId: number;
+}
+
+// PATCH /tareas/:id. Una tarea no se puede pasar a otro proyecto.
+export interface CambiosTarea {
+  nombre?: string;
+  completada?: boolean;
 }
 
 // Las fechas son `Date` en el backend y llegan como texto ISO al frontend.

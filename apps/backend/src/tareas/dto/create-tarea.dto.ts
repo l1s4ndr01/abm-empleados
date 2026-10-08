@@ -7,8 +7,9 @@ import {
   MaxLength,
 } from 'class-validator';
 import { trim } from '../../common/transformers';
+import type { NuevaTarea } from '@simep/tipos';
 
-export class CreateTareaDto {
+export class CreateTareaDto implements NuevaTarea {
   @Transform(trim)
   @IsString()
   @IsNotEmpty()

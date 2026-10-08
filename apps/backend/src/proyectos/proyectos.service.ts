@@ -58,7 +58,10 @@ export class ProyectosService {
     // Al restaurarlo, su cliente tiene que estar activo.
     const seRestaura = dto.archivado === false && actual.archivado;
     if (cambiaDeCliente || seRestaura) {
-      await this.validarCliente(dto.clienteId ?? actual.clienteId);
+      await this.validarCliente(
+        dto.clienteId ?? actual.clienteId,
+        seRestaura ? ' Restauralo primero para restaurar el proyecto.' : '',
+      );
     }
     try {
       return await this.prisma.proyecto.update({
@@ -82,7 +85,7 @@ export class ProyectosService {
   }
 
   // No se pueden crear, mover ni restaurar proyectos de un cliente archivado.
-  private async validarCliente(clienteId: number) {
+  private async validarCliente(clienteId: number, ayuda = '') {
     const cliente = await this.prisma.cliente.findUnique({
       where: { id: clienteId },
     });
@@ -91,7 +94,7 @@ export class ProyectosService {
     }
     if (cliente.archivado) {
       throw new BadRequestException(
-        `El cliente "${cliente.nombre}" está archivado`,
+        `El cliente "${cliente.nombre}" está archivado.${ayuda}`,
       );
     }
   }

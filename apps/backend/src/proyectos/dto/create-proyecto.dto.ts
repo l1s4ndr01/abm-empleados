@@ -9,8 +9,9 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { trim } from '../../common/transformers';
+import type { NuevoProyecto } from '@simep/tipos';
 
-export class CreateProyectoDto {
+export class CreateProyectoDto implements NuevoProyecto {
   @Transform(trim)
   @IsString()
   @IsNotEmpty()
