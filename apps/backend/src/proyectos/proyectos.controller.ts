@@ -16,6 +16,7 @@ import {
 import { CreateProyectoDto } from './dto/create-proyecto.dto';
 import { UpdateProyectoDto } from './dto/update-proyecto.dto';
 import { ProyectosService } from './proyectos.service';
+import type { Proyecto } from '@simep/tipos';
 
 @Controller('proyectos')
 export class ProyectosController {
@@ -28,7 +29,7 @@ export class ProyectosController {
     clienteId: number | undefined,
     @Query('archivados', new DefaultValuePipe(false), ParseBoolPipe)
     archivados: boolean,
-  ) {
+  ): Promise<Proyecto[]> {
     return this.proyectosService.findAll({
       clienteId,
       incluirArchivados: archivados,
@@ -36,13 +37,13 @@ export class ProyectosController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Proyecto> {
     return this.proyectosService.findOne(id);
   }
 
   @Roles(Rol.ADMIN)
   @Post()
-  create(@Body() dto: CreateProyectoDto) {
+  create(@Body() dto: CreateProyectoDto): Promise<Proyecto> {
     return this.proyectosService.create(dto);
   }
 
@@ -51,14 +52,14 @@ export class ProyectosController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProyectoDto,
-  ) {
+  ): Promise<Proyecto> {
     return this.proyectosService.update(id, dto);
   }
 
   // DELETE archiva el proyecto (no lo borra de la base).
   @Roles(Rol.ADMIN)
   @Delete(':id')
-  archivar(@Param('id', ParseIntPipe) id: number) {
+  archivar(@Param('id', ParseIntPipe) id: number): Promise<Proyecto> {
     return this.proyectosService.archivar(id);
   }
 }

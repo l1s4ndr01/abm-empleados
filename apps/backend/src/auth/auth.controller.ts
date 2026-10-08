@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { EmpleadoActual, Public } from './decorators';
 import { LoginGoogleDto } from './dto/login-google.dto';
 import { paginaPrueba } from './pagina-prueba';
+import type { Empleado as EmpleadoApi, RespuestaLogin } from '@simep/tipos';
 
 @Controller('auth')
 export class AuthController {
@@ -25,13 +26,13 @@ export class AuthController {
   @Public()
   @Post('google')
   @HttpCode(200)
-  login(@Body() dto: LoginGoogleDto) {
+  login(@Body() dto: LoginGoogleDto): Promise<RespuestaLogin> {
     return this.authService.loginConGoogle(dto.credential);
   }
 
   // Datos del empleado logueado.
   @Get('me')
-  me(@EmpleadoActual() empleado: Empleado) {
+  me(@EmpleadoActual() empleado: Empleado): EmpleadoApi {
     return empleado;
   }
 

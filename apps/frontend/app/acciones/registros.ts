@@ -3,16 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { ErrorDeApi, pedirAlBackend } from "@/lib/api";
 import { fechaDe, formatearHora, tituloDelDia } from "@/lib/fechas";
-import type { Registro } from "@/lib/tipos";
+import type { NuevoRegistro, Registro } from "@simep/tipos";
 
 // Lo que manda la ventana de carga. Las fechas van en ISO con zona.
-export interface DatosRegistro {
-  proyectoId: number;
-  tareaId: number | null;
-  descripcion: string | null;
-  inicio: string;
-  fin: string;
-}
+// Es lo mismo para crear y para editar: siempre se mandan todos los campos.
+type DatosRegistro = Required<Omit<NuevoRegistro, "empleadoId">>;
 
 export interface ResultadoGuardar {
   error?: string;
@@ -55,15 +50,16 @@ async function guardar(
 ): Promise<ResultadoGuardar> {
   try {
     // Se arma el cuerpo campo por campo: el backend rechaza campos de más.
+    const cuerpo: DatosRegistro = {
+      proyectoId: datos.proyectoId,
+      tareaId: datos.tareaId,
+      descripcion: datos.descripcion,
+      inicio: datos.inicio,
+      fin: datos.fin,
+    };
     await pedirAlBackend<Registro>(ruta, {
       method,
-      body: JSON.stringify({
-        proyectoId: datos.proyectoId,
-        tareaId: datos.tareaId,
-        descripcion: datos.descripcion,
-        inicio: datos.inicio,
-        fin: datos.fin,
-      }),
+      body: JSON.stringify(cuerpo),
     });
   } catch (error) {
     if (error instanceof ErrorDeApi) return { error: await explicar(error) };

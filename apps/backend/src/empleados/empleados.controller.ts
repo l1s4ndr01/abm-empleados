@@ -16,6 +16,7 @@ import {
 import { CreateEmpleadoDto } from './dto/create-empleado.dto';
 import { UpdateEmpleadoDto } from './dto/update-empleado.dto';
 import { EmpleadosService } from './empleados.service';
+import type { Empleado } from '@simep/tipos';
 
 // Todo el ABM de empleados es solo para administradores.
 @Roles(Rol.ADMIN)
@@ -28,17 +29,17 @@ export class EmpleadosController {
   findAll(
     @Query('inactivos', new DefaultValuePipe(false), ParseBoolPipe)
     inactivos: boolean,
-  ) {
+  ): Promise<Empleado[]> {
     return this.empleadosService.findAll(inactivos);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Empleado> {
     return this.empleadosService.findOne(id);
   }
 
   @Post()
-  create(@Body() dto: CreateEmpleadoDto) {
+  create(@Body() dto: CreateEmpleadoDto): Promise<Empleado> {
     return this.empleadosService.create(dto);
   }
 
@@ -46,13 +47,13 @@ export class EmpleadosController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateEmpleadoDto,
-  ) {
+  ): Promise<Empleado> {
     return this.empleadosService.update(id, dto);
   }
 
   // DELETE desactiva el empleado (no lo borra de la base).
   @Delete(':id')
-  desactivar(@Param('id', ParseIntPipe) id: number) {
+  desactivar(@Param('id', ParseIntPipe) id: number): Promise<Empleado> {
     return this.empleadosService.desactivar(id);
   }
 }

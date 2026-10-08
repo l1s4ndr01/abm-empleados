@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Proyecto, Tarea } from "@/lib/tipos";
+import type { Proyecto, Tarea } from "@simep/tipos";
 
 // Lista desplegable de proyectos agrupados por cliente. Al elegir un
 // proyecto con tareas, se despliegan para elegir una o "Sin tarea".

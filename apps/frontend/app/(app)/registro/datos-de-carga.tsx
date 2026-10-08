@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, use } from "react";
-import type { Proyecto, Tarea } from "@/lib/tipos";
+import type { Proyecto, Tarea } from "@simep/tipos";
 
 // Lo que necesita la ventana de carga, compartido por el botón
 // "Nueva entrada" y por el lápiz de cada fila.

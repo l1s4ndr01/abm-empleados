@@ -1,5 +1,5 @@
 import { formatearDuracion, tituloDelDia } from "@/lib/fechas";
-import type { Registro } from "@/lib/tipos";
+import type { Registro } from "@simep/tipos";
 import { FilaDeRegistro } from "./fila-de-registro";
 
 // Un día de la lista: encabezado con el total y una fila por registro.

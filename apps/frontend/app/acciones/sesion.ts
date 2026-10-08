@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { ErrorDeApi, llamarAlBackend } from "@/lib/api";
 import { borrarToken, guardarToken } from "@/lib/sesion";
+import type { RespuestaLogin } from "@simep/tipos";
 
 export interface ResultadoLogin {
   error?: string;
@@ -19,7 +20,7 @@ export async function iniciarSesion(
 
   let token: string;
   try {
-    const respuesta = await llamarAlBackend<{ accessToken: string }>(
+    const respuesta = await llamarAlBackend<RespuestaLogin>(
       "/auth/google",
       { method: "POST", body: JSON.stringify({ credential }) },
     );

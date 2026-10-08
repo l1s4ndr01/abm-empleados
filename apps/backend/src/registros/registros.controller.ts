@@ -15,6 +15,7 @@ import { CreateRegistroDto } from './dto/create-registro.dto';
 import { FiltrosRegistrosDto } from './dto/filtros-registros.dto';
 import { UpdateRegistroDto } from './dto/update-registro.dto';
 import { RegistrosService } from './registros.service';
+import type { Registro } from '@simep/tipos';
 
 // Todos los roles usan estas rutas: el servicio limita a un EMPLEADO
 // a sus propios registros.
@@ -26,7 +27,7 @@ export class RegistrosController {
   findAll(
     @EmpleadoActual() actual: Empleado,
     @Query() filtros: FiltrosRegistrosDto,
-  ) {
+  ): Promise<Registro<Date>[]> {
     return this.registrosService.findAll(actual, filtros);
   }
 
@@ -34,12 +35,15 @@ export class RegistrosController {
   findOne(
     @EmpleadoActual() actual: Empleado,
     @Param('id', ParseIntPipe) id: number,
-  ) {
+  ): Promise<Registro<Date>> {
     return this.registrosService.findOne(actual, id);
   }
 
   @Post()
-  create(@EmpleadoActual() actual: Empleado, @Body() dto: CreateRegistroDto) {
+  create(
+    @EmpleadoActual() actual: Empleado,
+    @Body() dto: CreateRegistroDto,
+  ): Promise<Registro<Date>> {
     return this.registrosService.create(actual, dto);
   }
 
@@ -48,7 +52,7 @@ export class RegistrosController {
     @EmpleadoActual() actual: Empleado,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateRegistroDto,
-  ) {
+  ): Promise<Registro<Date>> {
     return this.registrosService.update(actual, id, dto);
   }
 
@@ -57,7 +61,7 @@ export class RegistrosController {
   remove(
     @EmpleadoActual() actual: Empleado,
     @Param('id', ParseIntPipe) id: number,
-  ) {
+  ): Promise<Registro<Date>> {
     return this.registrosService.remove(actual, id);
   }
 }

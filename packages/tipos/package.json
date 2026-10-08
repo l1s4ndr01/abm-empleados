@@ -1,0 +1,7 @@
+{
+  "name": "@simep/tipos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tipos de la API de SIMEP, compartidos por el backend y el frontend",
+  "types": "index.d.ts"
+}

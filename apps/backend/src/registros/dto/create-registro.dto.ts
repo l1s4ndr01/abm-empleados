@@ -8,8 +8,9 @@ import {
 } from 'class-validator';
 import { trimONull } from '../../common/transformers';
 import { IsFechaConZona } from '../../common/validadores';
+import type { NuevoRegistro } from '@simep/tipos';
 
-export class CreateRegistroDto {
+export class CreateRegistroDto implements NuevoRegistro {
   @IsInt()
   @IsPositive()
   proyectoId: number;

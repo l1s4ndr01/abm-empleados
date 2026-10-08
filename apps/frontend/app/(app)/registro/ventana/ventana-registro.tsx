@@ -21,7 +21,7 @@ import {
   lunesDe,
   mismoDia,
 } from "@/lib/fechas";
-import type { Proyecto, Registro } from "@/lib/tipos";
+import type { Proyecto, Registro } from "@simep/tipos";
 import { useDatosDeCarga } from "../datos-de-carga";
 import { Calendario } from "./calendario";
 import { DialogoHoras } from "./dialogo-horas";

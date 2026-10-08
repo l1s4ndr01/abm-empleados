@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { borrarRegistro } from "@/app/acciones/registros";
 import { fechaDe, formatearDuracion, formatearHora } from "@/lib/fechas";
-import type { Registro } from "@/lib/tipos";
+import type { Registro } from "@simep/tipos";
 import { VentanaRegistro } from "./ventana/ventana-registro";
 
 // Una fila de la lista. El lápiz abre la ventana de carga con el registro;

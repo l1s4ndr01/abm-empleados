@@ -15,6 +15,7 @@ import {
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { UpdateTareaDto } from './dto/update-tarea.dto';
 import { TareasService } from './tareas.service';
+import type { Tarea } from '@simep/tipos';
 
 @Controller('tareas')
 export class TareasController {
@@ -27,31 +28,34 @@ export class TareasController {
     proyectoId: number | undefined,
     @Query('completada', new ParseBoolPipe({ optional: true }))
     completada: boolean | undefined,
-  ) {
+  ): Promise<Tarea[]> {
     return this.tareasService.findAll({ proyectoId, completada });
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Tarea> {
     return this.tareasService.findOne(id);
   }
 
   @Roles(Rol.ADMIN)
   @Post()
-  create(@Body() dto: CreateTareaDto) {
+  create(@Body() dto: CreateTareaDto): Promise<Tarea> {
     return this.tareasService.create(dto);
   }
 
   @Roles(Rol.ADMIN)
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTareaDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateTareaDto,
+  ): Promise<Tarea> {
     return this.tareasService.update(id, dto);
   }
 
   // Borra la tarea de verdad (solo si no tiene horas cargadas).
   @Roles(Rol.ADMIN)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<Tarea> {
     return this.tareasService.remove(id);
   }
 }

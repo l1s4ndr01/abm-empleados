@@ -12,7 +12,7 @@ import {
   rangoDeLaSemana,
   sumarDias,
 } from "@/lib/fechas";
-import type { Proyecto, Registro, Tarea } from "@/lib/tipos";
+import type { Proyecto, Registro, Tarea } from "@simep/tipos";
 import { DatosDeCarga } from "./datos-de-carga";
 import { DiaDeRegistros } from "./dia-de-registros";
 import { NuevaEntrada } from "./ventana/nueva-entrada";
