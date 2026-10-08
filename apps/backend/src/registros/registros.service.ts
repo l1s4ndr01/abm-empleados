@@ -172,6 +172,7 @@ export class RegistrosService {
     if (opciones.proyectoNuevo) {
       const proyecto = await this.prisma.proyecto.findUnique({
         where: { id: datos.proyectoId },
+        include: { cliente: true },
       });
       if (!proyecto) {
         throw new BadRequestException(
@@ -181,6 +182,12 @@ export class RegistrosService {
       if (proyecto.archivado) {
         throw new BadRequestException(
           `El proyecto "${proyecto.nombre}" está archivado`,
+        );
+      }
+      // Red de seguridad: archivar un cliente ya archiva sus proyectos.
+      if (proyecto.cliente.archivado) {
+        throw new BadRequestException(
+          `El cliente "${proyecto.cliente.nombre}" del proyecto está archivado`,
         );
       }
     }

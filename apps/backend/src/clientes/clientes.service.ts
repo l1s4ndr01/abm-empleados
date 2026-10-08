@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -36,21 +37,47 @@ export class ClientesService {
   }
 
   async update(id: number, dto: UpdateClienteDto) {
+    const { restaurarProyectos, ...datos } = dto;
+    if (restaurarProyectos !== undefined && datos.archivado !== false) {
+      throw new BadRequestException(
+        'restaurarProyectos solo se puede usar junto con "archivado": false',
+      );
+    }
     await this.findOne(id);
     try {
-      return await this.prisma.cliente.update({ where: { id }, data: dto });
+      // Al restaurar, si se pide, vuelven también todos sus proyectos.
+      const [cliente] = await this.prisma.$transaction([
+        this.prisma.cliente.update({ where: { id }, data: datos }),
+        ...(restaurarProyectos
+          ? [
+              this.prisma.proyecto.updateMany({
+                where: { clienteId: id },
+                data: { archivado: false },
+              }),
+            ]
+          : []),
+      ]);
+      return cliente;
     } catch (e) {
       throw this.traducirError(e, dto.nombre);
     }
   }
 
-  // Los clientes no se borran: se archivan para no romper proyectos ni horas cargadas.
+  // Los clientes no se borran: se archivan para no romper proyectos ni horas
+  // cargadas. Sus proyectos se archivan con él.
   async archivar(id: number) {
     await this.findOne(id);
-    return this.prisma.cliente.update({
-      where: { id },
-      data: { archivado: true },
-    });
+    const [cliente] = await this.prisma.$transaction([
+      this.prisma.cliente.update({
+        where: { id },
+        data: { archivado: true },
+      }),
+      this.prisma.proyecto.updateMany({
+        where: { clienteId: id },
+        data: { archivado: true },
+      }),
+    ]);
+    return cliente;
   }
 
   private traducirError(e: unknown, nombre?: string) {

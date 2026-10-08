@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Proyecto, Tarea } from "@simep/tipos";
+import { coincide } from "@/lib/texto";
 
 // Lista desplegable de proyectos agrupados por cliente. Al elegir un
 // proyecto con tareas, se despliegan para elegir una o "Sin tarea".
@@ -44,11 +45,8 @@ export function SelectorProyecto({
   }
 
   // Filtra por proyecto o cliente, sin importar mayúsculas ni acentos.
-  const texto = normalizar(busqueda);
   const visibles = proyectos.filter(
-    (p) =>
-      normalizar(p.nombre).includes(texto) ||
-      normalizar(p.cliente.nombre).includes(texto),
+    (p) => coincide(p.nombre, busqueda) || coincide(p.cliente.nombre, busqueda),
   );
   const porCliente = Map.groupBy(
     visibles.toSorted((a, b) => a.cliente.nombre.localeCompare(b.cliente.nombre)),
@@ -190,6 +188,3 @@ function OpcionTarea({
     </li>
   );
 }
-
-const normalizar = (texto: string) =>
-  texto.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();

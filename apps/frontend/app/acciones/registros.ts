@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { esId, type Resultado } from "@/lib/acciones";
 import { ErrorDeApi, pedirAlBackend } from "@/lib/api";
 import { fechaDe, formatearHora, tituloDelDia } from "@/lib/fechas";
 import type { NuevoRegistro, Registro } from "@simep/tipos";
@@ -9,25 +10,21 @@ import type { NuevoRegistro, Registro } from "@simep/tipos";
 // Es lo mismo para crear y para editar: siempre se mandan todos los campos.
 type DatosRegistro = Required<Omit<NuevoRegistro, "empleadoId">>;
 
-export interface ResultadoGuardar {
-  error?: string;
-}
-
 export async function crearRegistro(
   datos: DatosRegistro,
-): Promise<ResultadoGuardar> {
+): Promise<Resultado> {
   return guardar("/registros", "POST", datos);
 }
 
 export async function actualizarRegistro(
   id: number,
   datos: DatosRegistro,
-): Promise<ResultadoGuardar> {
+): Promise<Resultado> {
   if (!esId(id)) return { error: "El registro no es válido." };
   return guardar(`/registros/${id}`, "PATCH", datos);
 }
 
-export async function borrarRegistro(id: number): Promise<ResultadoGuardar> {
+export async function borrarRegistro(id: number): Promise<Resultado> {
   if (!esId(id)) return { error: "El registro no es válido." };
   try {
     await pedirAlBackend(`/registros/${id}`, { method: "DELETE" });
@@ -39,15 +36,11 @@ export async function borrarRegistro(id: number): Promise<ResultadoGuardar> {
   return {};
 }
 
-// Las acciones se pueden llamar desde afuera de la app: el id se controla
-// antes de armar la URL.
-const esId = (id: unknown) => Number.isInteger(id) && (id as number) > 0;
-
 async function guardar(
   ruta: string,
   method: "POST" | "PATCH",
   datos: DatosRegistro,
-): Promise<ResultadoGuardar> {
+): Promise<Resultado> {
   try {
     // Se arma el cuerpo campo por campo: el backend rechaza campos de más.
     const cuerpo: DatosRegistro = {

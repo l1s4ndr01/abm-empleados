@@ -18,9 +18,13 @@ export class ProyectosService {
 
   findAll(filtros: { clienteId?: number; incluirArchivados?: boolean }) {
     return this.prisma.proyecto.findMany({
+      // Sin ?archivados=true, se ocultan también los de clientes archivados.
       where: {
         clienteId: filtros.clienteId,
-        archivado: filtros.incluirArchivados ? undefined : false,
+        ...(!filtros.incluirArchivados && {
+          archivado: false,
+          cliente: { archivado: false },
+        }),
       },
       include,
       orderBy: { nombre: 'asc' },
@@ -49,8 +53,12 @@ export class ProyectosService {
 
   async update(id: number, dto: UpdateProyectoDto) {
     const actual = await this.findOne(id);
-    if (dto.clienteId !== undefined && dto.clienteId !== actual.clienteId) {
-      await this.validarCliente(dto.clienteId);
+    const cambiaDeCliente =
+      dto.clienteId !== undefined && dto.clienteId !== actual.clienteId;
+    // Al restaurarlo, su cliente tiene que estar activo.
+    const seRestaura = dto.archivado === false && actual.archivado;
+    if (cambiaDeCliente || seRestaura) {
+      await this.validarCliente(dto.clienteId ?? actual.clienteId);
     }
     try {
       return await this.prisma.proyecto.update({
@@ -73,7 +81,7 @@ export class ProyectosService {
     });
   }
 
-  // No se pueden crear proyectos (ni mover proyectos) a un cliente archivado.
+  // No se pueden crear, mover ni restaurar proyectos de un cliente archivado.
   private async validarCliente(clienteId: number) {
     const cliente = await this.prisma.cliente.findUnique({
       where: { id: clienteId },

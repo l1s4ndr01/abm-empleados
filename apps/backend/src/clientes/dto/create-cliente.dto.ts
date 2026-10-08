@@ -7,8 +7,9 @@ import {
   MaxLength,
 } from 'class-validator';
 import { trim } from '../../common/transformers';
+import type { NuevoCliente } from '@simep/tipos';
 
-export class CreateClienteDto {
+export class CreateClienteDto implements NuevoCliente {
   @Transform(trim)
   @IsString()
   @IsNotEmpty()

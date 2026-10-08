@@ -10,10 +10,12 @@ import {
 } from 'class-validator';
 import { trim } from '../../common/transformers';
 import { CreateClienteDto } from './create-cliente.dto';
+import type { CambiosCliente } from '@simep/tipos';
 
-export class UpdateClienteDto extends PartialType(
-  OmitType(CreateClienteDto, ['nombre'] as const),
-) {
+export class UpdateClienteDto
+  extends PartialType(OmitType(CreateClienteDto, ['nombre'] as const))
+  implements CambiosCliente
+{
   // Opcional, pero si viene no puede ser null ni vacío (IsOptional dejaría pasar null).
   @Transform(trim)
   @ValidateIf((o: UpdateClienteDto) => o.nombre !== undefined)
@@ -26,4 +28,9 @@ export class UpdateClienteDto extends PartialType(
   @IsOptional()
   @IsBoolean()
   archivado?: boolean;
+
+  // Junto con { "archivado": false }, restaura también todos sus proyectos.
+  @IsOptional()
+  @IsBoolean()
+  restaurarProyectos?: boolean;
 }

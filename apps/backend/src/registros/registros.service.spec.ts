@@ -40,7 +40,9 @@ const registro = (datos: Partial<RegistroTiempo>): RegistroTiempo => ({
 
 describe('RegistrosService', () => {
   let service: RegistrosService;
-  let proyectos: Partial<Proyecto>[];
+  let proyectos: (Partial<Proyecto> & {
+    cliente: { nombre: string; archivado: boolean };
+  })[];
   let tareas: Partial<Tarea>[];
   let registros: RegistroTiempo[];
 
@@ -107,10 +109,18 @@ describe('RegistrosService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    const activo = { nombre: 'Ferretería', archivado: false };
     proyectos = [
-      { id: 1, nombre: 'Web', archivado: false },
-      { id: 2, nombre: 'Viejo', archivado: true },
-      { id: 3, nombre: 'App', archivado: false },
+      { id: 1, nombre: 'Web', archivado: false, cliente: activo },
+      { id: 2, nombre: 'Viejo', archivado: true, cliente: activo },
+      { id: 3, nombre: 'App', archivado: false, cliente: activo },
+      // Datos viejos: proyecto activo de un cliente ya archivado.
+      {
+        id: 4,
+        nombre: 'Huérfano',
+        archivado: false,
+        cliente: { nombre: 'Panadería', archivado: true },
+      },
     ];
     tareas = [
       { id: 10, nombre: 'Diseño', proyectoId: 1, completada: true },
@@ -134,6 +144,12 @@ describe('RegistrosService', () => {
     await expect(
       service.create(ana, { ...nuevo, fin: nuevo.inicio }),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('rechaza un proyecto de un cliente archivado (400)', async () => {
+    await expect(
+      service.create(ana, { ...nuevo, proyectoId: 4 }),
+    ).rejects.toThrow('El cliente "Panadería" del proyecto está archivado');
   });
 
   it('rechaza un proyecto archivado (400)', async () => {

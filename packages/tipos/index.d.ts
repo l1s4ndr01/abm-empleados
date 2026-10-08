@@ -26,6 +26,21 @@ export interface Cliente {
   archivado: boolean;
 }
 
+// POST /clientes. Los textos opcionales se borran mandándolos en null.
+export interface NuevoCliente {
+  nombre: string;
+  email?: string | null;
+  direccion?: string | null;
+  nota?: string | null;
+}
+
+// PATCH /clientes/:id. { archivado: false } lo desarchiva; con
+// restaurarProyectos: true vuelven también todos sus proyectos.
+export interface CambiosCliente extends Partial<NuevoCliente> {
+  archivado?: boolean;
+  restaurarProyectos?: boolean;
+}
+
 export interface Proyecto {
   id: number;
   nombre: string;
