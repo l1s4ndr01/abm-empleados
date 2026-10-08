@@ -3,9 +3,10 @@
 ### Para obtener un token:
 ###   1. Levantá el backend y abrí en el navegador http://localhost:3000/auth/prueba
 ###   2. Iniciá sesión con Google y copiá el "accessToken" de la respuesta.
-###   3. Pegalo en la variable @token de este archivo y de los demás .http.
+###   3. Pegalo en http/.env como SIMEP_TOKEN=... (copiá .env.example si no existe).
+###      Lo usan todos los .http. Ese archivo no se sube al repositorio.
 @baseUrl = http://localhost:3000
-@token = pegar-aca-el-accessToken
+@token = {{$dotenv SIMEP_TOKEN}}
 
 ### Ver quién soy (empleado logueado)
 GET {{baseUrl}}/auth/me

@@ -3,8 +3,8 @@
 ### Necesita al menos un proyecto creado (ver proyectos.http).
 ### Las fechas van con zona horaria: -03:00 es la hora argentina.
 @baseUrl = http://localhost:3000
-# Pegá acá el accessToken que devuelve el login (ver auth.http).
-@token = pegar-aca-el-accessToken
+# El token se lee de http/.env (ver auth.http).
+@token = {{$dotenv SIMEP_TOKEN}}
 
 ### Listar mis registros (el ADMIN ve los de todos)
 GET {{baseUrl}}/registros

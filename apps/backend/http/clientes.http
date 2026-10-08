@@ -1,8 +1,8 @@
 ### Pruebas del módulo Clientes (extensión REST Client de VS Code).
 ### Hacer clic en "Send Request" arriba de cada pedido.
 @baseUrl = http://localhost:3000
-# Pegá acá el accessToken que devuelve el login (ver auth.http).
-@token = pegar-aca-el-accessToken
+# El token se lee de http/.env (ver auth.http).
+@token = {{$dotenv SIMEP_TOKEN}}
 
 ### Listar clientes activos
 GET {{baseUrl}}/clientes

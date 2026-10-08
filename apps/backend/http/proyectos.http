@@ -2,8 +2,8 @@
 ### Hacer clic en "Send Request" arriba de cada pedido.
 ### Necesita al menos un cliente creado (ver clientes.http).
 @baseUrl = http://localhost:3000
-# Pegá acá el accessToken que devuelve el login (ver auth.http).
-@token = pegar-aca-el-accessToken
+# El token se lee de http/.env (ver auth.http).
+@token = {{$dotenv SIMEP_TOKEN}}
 
 ### Listar proyectos activos
 GET {{baseUrl}}/proyectos
