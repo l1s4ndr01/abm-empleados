@@ -1,16 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { Proyecto, Tarea } from "@/lib/tipos";
 import { VentanaRegistro } from "./ventana-registro";
 
 // Botón "+ Nueva entrada de tiempo". Cada vez que se abre, la ventana
 // arranca de cero (hora actual, duración 0).
-export function NuevaEntrada(props: {
-  proyectos: Proyecto[];
-  tareas: Tarea[];
-  semanaVisible: string;
-}) {
+export function NuevaEntrada() {
   const [abierta, setAbierta] = useState(false);
 
   return (
@@ -22,7 +17,7 @@ export function NuevaEntrada(props: {
       >
         + Nueva entrada de tiempo
       </button>
-      {abierta && <VentanaRegistro {...props} onCerrar={() => setAbierta(false)} />}
+      {abierta && <VentanaRegistro onCerrar={() => setAbierta(false)} />}
     </>
   );
 }

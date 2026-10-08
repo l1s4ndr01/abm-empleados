@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { crearRegistro } from "@/app/acciones/registros";
+import { actualizarRegistro, crearRegistro } from "@/app/acciones/registros";
 import { Dialogo } from "@/componentes/dialogo";
 import {
   IconoCalendario,
@@ -21,7 +21,8 @@ import {
   lunesDe,
   mismoDia,
 } from "@/lib/fechas";
-import type { Proyecto, Tarea } from "@/lib/tipos";
+import type { Proyecto, Registro } from "@/lib/tipos";
+import { useDatosDeCarga } from "../datos-de-carga";
 import { Calendario } from "./calendario";
 import { DialogoHoras } from "./dialogo-horas";
 import { SelectorProyecto } from "./selector-proyecto";
@@ -35,29 +36,34 @@ const PASOS = [
   { minutos: 60, texto: "+1h" },
 ];
 
-// Ventana "Nueva entrada de tiempo". El fin no se guarda en el estado:
-// se calcula como inicio + duración, así cambiar uno mueve el otro.
+// Ventana "Nueva entrada de tiempo", o "Editar entrada de tiempo" si
+// recibe un registro. El fin no se guarda en el estado: se calcula como
+// inicio + duración, así cambiar uno mueve el otro.
 export function VentanaRegistro({
-  proyectos,
-  tareas,
-  semanaVisible,
+  registro,
   onCerrar,
 }: {
-  proyectos: Proyecto[];
-  tareas: Tarea[];
-  semanaVisible: string;
+  registro?: Registro;
   onCerrar: () => void;
 }) {
   const router = useRouter();
-  const [descripcion, setDescripcion] = useState("");
-  const [proyectoId, setProyectoId] = useState<number | null>(null);
-  const [tareaId, setTareaId] = useState<number | null>(null);
-  const [inicio, setInicio] = useState(ahoraRedondeado);
-  const [minutos, setMinutos] = useState(0);
+  const datos = useDatosDeCarga();
+  const { tareas, semanaVisible } = datos;
+  const [descripcion, setDescripcion] = useState(registro?.descripcion ?? "");
+  const [proyectoId, setProyectoId] = useState(registro?.proyectoId ?? null);
+  const [tareaId, setTareaId] = useState(registro?.tareaId ?? null);
+  const [inicio, setInicio] = useState(() =>
+    registro ? new Date(registro.inicio) : ahoraRedondeado(),
+  );
+  const [minutos, setMinutos] = useState(() =>
+    registro ? Math.round(registro.duracionSegundos / 60) : 0,
+  );
   const [editando, setEditando] = useState<Editando>(null);
   const [error, setError] = useState<string | null>(null);
   const [guardando, startTransition] = useTransition();
 
+  const titulo = registro ? "Editar entrada de tiempo" : "Nueva entrada de tiempo";
+  const proyectos = conProyectoArchivado(datos.proyectos, registro);
   const fin = new Date(inicio.getTime() + minutos * 60_000);
   const diasDespues = Math.round(
     (Date.parse(fechaLocal(fin)) - Date.parse(fechaLocal(inicio))) / 86_400_000,
@@ -86,13 +92,16 @@ export function VentanaRegistro({
       return;
     }
     startTransition(async () => {
-      const resultado = await crearRegistro({
+      const cambios = {
         proyectoId,
         tareaId,
         descripcion: descripcion.trim() || null,
         inicio: conZona(inicio),
         fin: conZona(fin),
-      });
+      };
+      const resultado = registro
+        ? await actualizarRegistro(registro.id, cambios)
+        : await crearRegistro(cambios);
       if (resultado.error) {
         setError(resultado.error);
         return;
@@ -109,7 +118,7 @@ export function VentanaRegistro({
 
   return (
     <Dialogo
-      etiqueta="Nueva entrada de tiempo"
+      etiqueta={titulo}
       onCerrar={onCerrar}
       className="w-[min(28rem,calc(100vw-2rem))]"
     >
@@ -117,7 +126,7 @@ export function VentanaRegistro({
         <button type="button" onClick={onCerrar} aria-label="Cerrar" className="text-tenue hover:text-texto">
           <IconoCerrar />
         </button>
-        <h2 className="text-lg">Nueva entrada de tiempo</h2>
+        <h2 className="text-lg">{titulo}</h2>
       </div>
 
       <div className="grid grid-cols-[1.25rem_1fr] items-start gap-x-3.5 border-b border-linea px-5 py-3.5 text-tenue">
@@ -270,4 +279,17 @@ export function VentanaRegistro({
       )}
     </Dialogo>
   );
+}
+
+// Un registro de un proyecto que se archivó después se puede seguir
+// corrigiendo: su proyecto se agrega a la lista aunque esté archivado.
+function conProyectoArchivado(proyectos: Proyecto[], registro?: Registro) {
+  if (!registro || proyectos.some((p) => p.id === registro.proyectoId)) {
+    return proyectos;
+  }
+  const { cliente, ...proyecto } = registro.proyecto;
+  return [
+    ...proyectos,
+    { ...proyecto, clienteId: cliente.id, archivado: true, cliente },
+  ];
 }

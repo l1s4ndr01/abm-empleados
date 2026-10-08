@@ -13,6 +13,7 @@ import {
   sumarDias,
 } from "@/lib/fechas";
 import type { Proyecto, Registro, Tarea } from "@/lib/tipos";
+import { DatosDeCarga } from "./datos-de-carga";
 import { DiaDeRegistros } from "./dia-de-registros";
 import { NuevaEntrada } from "./ventana/nueva-entrada";
 
@@ -48,47 +49,58 @@ export default async function RegistroPage({
   const totalSemana = registros.reduce((t, r) => t + r.duracionSegundos, 0);
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-5">
-      <h1 className="text-xl font-semibold">Registro de tiempo</h1>
+    <DatosDeCarga proyectos={proyectos} tareas={tareas} semanaVisible={lunes}>
+      <div className="mx-auto grid max-w-5xl gap-5">
+        <h1 className="text-xl font-semibold">Registro de tiempo</h1>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <nav className="flex items-center gap-2" aria-label="Semana">
-          <FlechaSemana lunes={sumarDias(lunes, -7)} etiqueta="Semana anterior">
-            ‹
-          </FlechaSemana>
-          <span className="min-w-40 text-center font-semibold">
-            {rangoDeLaSemana(lunes)}
-          </span>
-          <FlechaSemana lunes={sumarDias(lunes, 7)} etiqueta="Semana siguiente">
-            ›
-          </FlechaSemana>
-          {lunes !== lunesActual && (
-            <Link href="/registro" className="ml-2 text-sm text-acento hover:underline">
-              Esta semana
-            </Link>
-          )}
-        </nav>
-        <div className="flex items-center gap-4">
-          <p className="text-sm text-tenue">
-            Total de la semana{" "}
-            <span className="font-mono text-base font-medium text-texto">
-              {formatearDuracion(totalSemana)}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <nav className="flex items-center gap-2" aria-label="Semana">
+            <FlechaSemana
+              lunes={sumarDias(lunes, -7)}
+              etiqueta="Semana anterior"
+            >
+              ‹
+            </FlechaSemana>
+            <span className="min-w-40 text-center font-semibold">
+              {rangoDeLaSemana(lunes)}
             </span>
-          </p>
-          <NuevaEntrada proyectos={proyectos} tareas={tareas} semanaVisible={lunes} />
+            <FlechaSemana
+              lunes={sumarDias(lunes, 7)}
+              etiqueta="Semana siguiente"
+            >
+              ›
+            </FlechaSemana>
+            {lunes !== lunesActual && (
+              <Link
+                href="/registro"
+                className="ml-2 text-sm text-acento hover:underline"
+              >
+                Esta semana
+              </Link>
+            )}
+          </nav>
+          <div className="flex items-center gap-4">
+            <p className="text-sm text-tenue">
+              Total de la semana{" "}
+              <span className="font-mono text-base font-medium text-texto">
+                {formatearDuracion(totalSemana)}
+              </span>
+            </p>
+            <NuevaEntrada />
+          </div>
         </div>
-      </div>
 
-      {registros.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-linea px-4 py-10 text-center text-tenue">
-          No hay horas cargadas en esta semana.
-        </p>
-      ) : (
-        [...porDia].map(([fecha, delDia]) => (
-          <DiaDeRegistros key={fecha} fecha={fecha} registros={delDia} />
-        ))
-      )}
-    </div>
+        {registros.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-linea px-4 py-10 text-center text-tenue">
+            No hay horas cargadas en esta semana.
+          </p>
+        ) : (
+          [...porDia].map(([fecha, delDia]) => (
+            <DiaDeRegistros key={fecha} fecha={fecha} registros={delDia} />
+          ))
+        )}
+      </div>
+    </DatosDeCarga>
   );
 }
 

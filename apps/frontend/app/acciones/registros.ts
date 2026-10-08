@@ -2,11 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ErrorDeApi, pedirAlBackend } from "@/lib/api";
-import {
-  fechaDe,
-  formatearHora,
-  tituloDelDia,
-} from "@/lib/fechas";
+import { fechaDe, formatearHora, tituloDelDia } from "@/lib/fechas";
 import type { Registro } from "@/lib/tipos";
 
 // Lo que manda la ventana de carga. Las fechas van en ISO con zona.
@@ -25,9 +21,42 @@ export interface ResultadoGuardar {
 export async function crearRegistro(
   datos: DatosRegistro,
 ): Promise<ResultadoGuardar> {
+  return guardar("/registros", "POST", datos);
+}
+
+export async function actualizarRegistro(
+  id: number,
+  datos: DatosRegistro,
+): Promise<ResultadoGuardar> {
+  if (!esId(id)) return { error: "El registro no es válido." };
+  return guardar(`/registros/${id}`, "PATCH", datos);
+}
+
+export async function borrarRegistro(id: number): Promise<ResultadoGuardar> {
+  if (!esId(id)) return { error: "El registro no es válido." };
   try {
-    await pedirAlBackend<Registro>("/registros", {
-      method: "POST",
+    await pedirAlBackend(`/registros/${id}`, { method: "DELETE" });
+  } catch (error) {
+    if (error instanceof ErrorDeApi) return { error: error.message };
+    throw error;
+  }
+  revalidatePath("/registro");
+  return {};
+}
+
+// Las acciones se pueden llamar desde afuera de la app: el id se controla
+// antes de armar la URL.
+const esId = (id: unknown) => Number.isInteger(id) && (id as number) > 0;
+
+async function guardar(
+  ruta: string,
+  method: "POST" | "PATCH",
+  datos: DatosRegistro,
+): Promise<ResultadoGuardar> {
+  try {
+    // Se arma el cuerpo campo por campo: el backend rechaza campos de más.
+    await pedirAlBackend<Registro>(ruta, {
+      method,
       body: JSON.stringify({
         proyectoId: datos.proyectoId,
         tareaId: datos.tareaId,
