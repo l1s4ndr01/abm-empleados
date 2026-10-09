@@ -14,6 +14,7 @@ import {
 import {
   horasPorTramo,
   pedazosDelPeriodo,
+  semanasDelRango,
   totales,
   totalesAgrupados,
   type Pedazo,
@@ -22,6 +23,7 @@ import { Detallado } from "./detallado";
 import { FiltrosDelReporte } from "./filtros-reporte";
 import { GraficoDeHoras } from "./grafico-de-horas";
 import { urlReporte, type FiltrosReporte, type Vista } from "./rutas";
+import { Semanal } from "./semanal";
 import { TablaDeTotales } from "./tabla-de-totales";
 
 export const metadata: Metadata = { title: "Reportes" };
@@ -102,9 +104,7 @@ export default async function ReportesPage({
       ) : filtros.vista === "detallado" ? (
         <Detallado pedazos={pedazos} />
       ) : (
-        <p className="rounded-lg border border-dashed border-linea px-4 py-10 text-center text-tenue">
-          {VISTAS.find((v) => v.vista === filtros.vista)?.nombre}: en construcción.
-        </p>
+        <Semanal semanas={semanasDelRango(pedazos, filtros.desde, filtros.hasta)} />
       )}
 
       <p className="text-xs text-tenue">

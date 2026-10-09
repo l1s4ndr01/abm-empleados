@@ -198,3 +198,93 @@ export function totalesAgrupados(pedazos: Pedazo[]) {
     empleado: agrupar(pedazos, NIVELES.empleado),
   } satisfies Record<Agrupacion, FilaDeTotales[]>;
 }
+
+// --- Semanal: una grilla por semana (lunes a domingo) ---
+
+export type FilasSemanales = "empleado" | "proyecto";
+
+export interface FilaSemanal {
+  clave: string;
+  nombre: string;
+  detalle?: string;
+  color?: string;
+  // Segundos de lunes a domingo.
+  porDia: number[];
+  segundos: number;
+}
+
+export interface Semana {
+  lunes: string;
+  // Los días de la semana que quedan afuera del rango se muestran vacíos.
+  dias: { fecha: string; enRango: boolean }[];
+  filas: Record<FilasSemanales, FilaSemanal[]>;
+  porDia: number[];
+  segundos: number;
+}
+
+const sumarPorDia = (pedazos: Pedazo[], dias: string[]) =>
+  dias.map((fecha) =>
+    pedazos.filter((p) => p.fecha === fecha).reduce((t, p) => t + p.segundos, 0),
+  );
+
+function filasDeLaSemana(
+  pedazos: Pedazo[],
+  dias: string[],
+  clave: (p: Pedazo) => number,
+  datos: (p: Pedazo) => Omit<FilaSemanal, "clave" | "porDia" | "segundos">,
+  orden: (a: Pedazo, b: Pedazo) => number,
+): FilaSemanal[] {
+  return [...Map.groupBy(pedazos.toSorted(orden), clave)].map(([id, delGrupo]) => {
+    const porDia = sumarPorDia(delGrupo, dias);
+    return {
+      clave: String(id),
+      ...datos(delGrupo[0]),
+      porDia,
+      segundos: porDia.reduce((t, s) => t + s, 0),
+    };
+  });
+}
+
+// Semanas del rango, de la más reciente a la más vieja, como el Detallado.
+export function semanasDelRango(pedazos: Pedazo[], desde: string, hasta: string): Semana[] {
+  const semanas: Semana[] = [];
+  for (let lunes = lunesDe(desde); lunes <= hasta; lunes = sumarDias(lunes, 7)) {
+    const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i));
+    const deLaSemana = pedazos.filter((p) => dias.includes(p.fecha));
+    const porDia = sumarPorDia(deLaSemana, dias);
+    semanas.push({
+      lunes,
+      dias: dias.map((fecha) => ({ fecha, enRango: fecha >= desde && fecha <= hasta })),
+      filas: {
+        // Empleados por apellido; proyectos por cliente y nombre.
+        empleado: filasDeLaSemana(
+          deLaSemana,
+          dias,
+          (p) => p.registro.empleadoId,
+          ({ registro: { empleado } }) => ({ nombre: `${empleado.apellido}, ${empleado.nombre}` }),
+          (a, b) =>
+            `${a.registro.empleado.apellido} ${a.registro.empleado.nombre}`.localeCompare(
+              `${b.registro.empleado.apellido} ${b.registro.empleado.nombre}`,
+            ),
+        ),
+        proyecto: filasDeLaSemana(
+          deLaSemana,
+          dias,
+          (p) => p.registro.proyectoId,
+          ({ registro: { proyecto } }) => ({
+            nombre: proyecto.nombre,
+            detalle: proyecto.cliente.nombre,
+            color: proyecto.color,
+          }),
+          (a, b) =>
+            `${a.registro.proyecto.cliente.nombre} ${a.registro.proyecto.nombre}`.localeCompare(
+              `${b.registro.proyecto.cliente.nombre} ${b.registro.proyecto.nombre}`,
+            ),
+        ),
+      },
+      porDia,
+      segundos: porDia.reduce((t, s) => t + s, 0),
+    });
+  }
+  return semanas.reverse();
+}
