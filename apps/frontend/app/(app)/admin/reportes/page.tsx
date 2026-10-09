@@ -18,6 +18,7 @@ import {
   totalesAgrupados,
   type Pedazo,
 } from "@/lib/reportes";
+import { Detallado } from "./detallado";
 import { FiltrosDelReporte } from "./filtros-reporte";
 import { GraficoDeHoras } from "./grafico-de-horas";
 import { urlReporte, type FiltrosReporte, type Vista } from "./rutas";
@@ -98,6 +99,8 @@ export default async function ReportesPage({
         </p>
       ) : filtros.vista === "resumen" ? (
         <Resumen pedazos={pedazos} filtros={filtros} segundos={total.segundos} />
+      ) : filtros.vista === "detallado" ? (
+        <Detallado pedazos={pedazos} />
       ) : (
         <p className="rounded-lg border border-dashed border-linea px-4 py-10 text-center text-tenue">
           {VISTAS.find((v) => v.vista === filtros.vista)?.nombre}: en construcción.
