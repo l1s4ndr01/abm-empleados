@@ -22,6 +22,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         <EnlaceMenu href="/registro">Registro de tiempo</EnlaceMenu>
         {empleado.rol === "ADMIN" && (
           <>
+            <EnlaceMenu href="/admin/reportes">Reportes</EnlaceMenu>
             <p className="px-3 pt-5 pb-1 text-xs font-semibold tracking-wider text-tenue uppercase">
               Administración
             </p>

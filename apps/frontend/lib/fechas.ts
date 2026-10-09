@@ -103,6 +103,27 @@ export function tituloDelDia(fecha: string) {
   return texto[0].toUpperCase() + texto.slice(1);
 }
 
+export function primeroDelMes(fecha: string) {
+  return `${fecha.slice(0, 8)}01`;
+}
+
+export function ultimoDelMes(fecha: string) {
+  const dia = comoDia(primeroDelMes(fecha));
+  dia.setUTCMonth(dia.getUTCMonth() + 1);
+  return sumarDias(comoTexto(dia), -1);
+}
+
+// Cantidad de días de un rango, contando el primero y el último.
+export function diasDelRango(desde: string, hasta: string) {
+  return Math.round((comoDia(hasta).getTime() - comoDia(desde).getTime()) / 86_400_000) + 1;
+}
+
+// "5 oct 2026"
+export function fechaCorta(fecha: string) {
+  const dia = comoDia(fecha);
+  return `${dia.getUTCDate()} ${MESES_CORTOS[dia.getUTCMonth()]} ${dia.getUTCFullYear()}`;
+}
+
 // "5 – 11 oct 2026", "28 sept – 4 oct 2026" o "29 dic 2025 – 4 ene 2026"
 export function rangoDeLaSemana(lunes: string) {
   const desde = comoDia(lunes);

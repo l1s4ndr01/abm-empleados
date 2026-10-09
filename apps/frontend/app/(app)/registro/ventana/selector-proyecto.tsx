@@ -12,12 +12,14 @@ export function SelectorProyecto({
   proyectoId,
   tareaId,
   onElegir,
+  textoVacio = "Elegí un proyecto",
 }: {
   proyectos: Proyecto[];
   tareas: Tarea[];
   proyectoId: number | null;
   tareaId: number | null;
   onElegir: (proyectoId: number, tareaId: number | null) => void;
+  textoVacio?: string;
 }) {
   const [abierto, setAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -71,7 +73,7 @@ export function SelectorProyecto({
             </span>
           </>
         ) : (
-          <span className="flex-1 text-tenue">Elegí un proyecto</span>
+          <span className="flex-1 text-tenue">{textoVacio}</span>
         )}
         <span className="text-tenue" aria-hidden="true">▾</span>
       </button>
