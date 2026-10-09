@@ -9,6 +9,7 @@ import {
   IconoCarpeta,
   IconoCerrar,
   IconoCronometro,
+  IconoPersona,
   IconoTexto,
 } from "@/componentes/iconos";
 import {
@@ -23,6 +24,7 @@ import {
 } from "@/lib/fechas";
 import type { Proyecto, Registro } from "@simep/tipos";
 import { useDatosDeCarga } from "../datos-de-carga";
+import { urlRegistro } from "../rutas";
 import { Calendario } from "./calendario";
 import { DialogoHoras } from "./dialogo-horas";
 import { SelectorProyecto } from "./selector-proyecto";
@@ -48,7 +50,12 @@ export function VentanaRegistro({
 }) {
   const router = useRouter();
   const datos = useDatosDeCarga();
-  const { tareas, semanaVisible } = datos;
+  const { tareas, semanaVisible, esAdmin, miId, parametroEmpleado } = datos;
+  // El ADMIN elige a nombre de quién carga; arranca en el empleado que está
+  // mirando (o en sí mismo si mira a todos). Al editar no se puede cambiar.
+  const [empleadoId, setEmpleadoId] = useState(
+    registro?.empleadoId ?? datos.empleadoVisto ?? miId,
+  );
   const [descripcion, setDescripcion] = useState(registro?.descripcion ?? "");
   const [proyectoId, setProyectoId] = useState(registro?.proyectoId ?? null);
   const [tareaId, setTareaId] = useState(registro?.tareaId ?? null);
@@ -101,15 +108,27 @@ export function VentanaRegistro({
       };
       const resultado = registro
         ? await actualizarRegistro(registro.id, cambios)
-        : await crearRegistro(cambios);
+        : await crearRegistro(
+            cambios,
+            empleadoId !== miId ? empleadoId : undefined,
+          );
       if (resultado.error) {
         setError(resultado.error);
         return;
       }
       onCerrar();
-      // Si el registro es de otra semana, se muestra esa semana.
+      // Se muestra la semana del registro y, si se cargó a nombre de otro
+      // empleado, sus horas (salvo que se estén viendo las de todos).
       const semana = lunesDe(fechaLocal(inicio));
-      if (semana !== semanaVisible) router.push(`/registro?semana=${semana}`);
+      const empleado =
+        parametroEmpleado === "todos"
+          ? "todos"
+          : empleadoId === miId
+            ? undefined
+            : String(empleadoId);
+      if (semana !== semanaVisible || empleado !== parametroEmpleado) {
+        router.push(urlRegistro({ semana, empleado }));
+      }
     });
   }
 
@@ -128,6 +147,32 @@ export function VentanaRegistro({
         </button>
         <h2 className="text-lg">{titulo}</h2>
       </div>
+
+      {esAdmin && (
+        <div className="grid grid-cols-[1.25rem_1fr] items-center gap-x-3.5 border-b border-linea px-5 py-3 text-tenue">
+          <IconoPersona />
+          {registro ? (
+            <p className="text-sm text-texto" title="El empleado de un registro no se puede cambiar">
+              {registro.empleado.nombre} {registro.empleado.apellido}
+            </p>
+          ) : (
+            <select
+              value={empleadoId}
+              onChange={(e) => cambiar(() => setEmpleadoId(Number(e.target.value)))}
+              aria-label="Empleado"
+              className="rounded-md border border-linea bg-superficie px-2 py-1.5 text-sm text-texto"
+            >
+              {datos.empleados
+                .filter((e) => e.activo)
+                .map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.id === miId ? "Yo" : `${e.apellido}, ${e.nombre}`}
+                  </option>
+                ))}
+            </select>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-[1.25rem_1fr] items-start gap-x-3.5 border-b border-linea px-5 py-3.5 text-tenue">
         <IconoTexto />

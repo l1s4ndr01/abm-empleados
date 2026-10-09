@@ -8,7 +8,13 @@ import { VentanaRegistro } from "./ventana/ventana-registro";
 
 // Una fila de la lista. El lápiz abre la ventana de carga con el registro;
 // el tacho pide confirmación en la misma lista antes de borrar.
-export function FilaDeRegistro({ registro }: { registro: Registro }) {
+export function FilaDeRegistro({
+  registro,
+  mostrarEmpleado,
+}: {
+  registro: Registro;
+  mostrarEmpleado: boolean;
+}) {
   const [editando, setEditando] = useState(false);
   const [confirmando, setConfirmando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,12 +41,19 @@ export function FilaDeRegistro({ registro }: { registro: Registro }) {
   return (
     <li>
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,16rem)_8rem_3.5rem_4.5rem] items-center gap-4 py-1.5 pr-2 pl-4 text-sm">
-        <p
-          className={`truncate ${registro.descripcion ? "" : "text-tenue italic"}`}
-          title={registro.descripcion ?? undefined}
-        >
-          {registro.descripcion ?? "Sin descripción"}
-        </p>
+        <div className="min-w-0">
+          <p
+            className={`truncate ${registro.descripcion ? "" : "text-tenue italic"}`}
+            title={registro.descripcion ?? undefined}
+          >
+            {registro.descripcion ?? "Sin descripción"}
+          </p>
+          {mostrarEmpleado && (
+            <p className="truncate text-xs text-tenue">
+              {registro.empleado.nombre} {registro.empleado.apellido}
+            </p>
+          )}
+        </div>
         <div className="min-w-0">
           <p className="flex items-center gap-2 truncate">
             <span

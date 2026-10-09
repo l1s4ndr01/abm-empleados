@@ -6,9 +6,12 @@ import { FilaDeRegistro } from "./fila-de-registro";
 export function DiaDeRegistros({
   fecha,
   registros,
+  mostrarEmpleado = false,
 }: {
   fecha: string;
   registros: Registro[];
+  // En la vista de todos los empleados (ADMIN), cada fila dice de quién es.
+  mostrarEmpleado?: boolean;
 }) {
   const total = registros.reduce((t, r) => t + r.duracionSegundos, 0);
 
@@ -25,7 +28,11 @@ export function DiaDeRegistros({
       </header>
       <ul className="divide-y divide-linea">
         {registros.map((registro) => (
-          <FilaDeRegistro key={registro.id} registro={registro} />
+          <FilaDeRegistro
+            key={registro.id}
+            registro={registro}
+            mostrarEmpleado={mostrarEmpleado}
+          />
         ))}
       </ul>
     </section>

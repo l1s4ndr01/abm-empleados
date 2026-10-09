@@ -10,10 +10,16 @@ import type { NuevoRegistro, Registro } from "@simep/tipos";
 // Es lo mismo para crear y para editar: siempre se mandan todos los campos.
 type DatosRegistro = Required<Omit<NuevoRegistro, "empleadoId">>;
 
+// empleadoId solo lo manda el ADMIN, para cargar horas a nombre de otro.
+// Si no es ADMIN, el backend lo rechaza (403).
 export async function crearRegistro(
   datos: DatosRegistro,
+  empleadoId?: number,
 ): Promise<Resultado> {
-  return guardar("/registros", "POST", datos);
+  if (empleadoId !== undefined && !esId(empleadoId)) {
+    return { error: "El empleado no es válido." };
+  }
+  return guardar("/registros", "POST", datos, empleadoId);
 }
 
 export async function actualizarRegistro(
@@ -40,15 +46,17 @@ async function guardar(
   ruta: string,
   method: "POST" | "PATCH",
   datos: DatosRegistro,
+  empleadoId?: number,
 ): Promise<Resultado> {
   try {
     // Se arma el cuerpo campo por campo: el backend rechaza campos de más.
-    const cuerpo: DatosRegistro = {
+    const cuerpo: NuevoRegistro = {
       proyectoId: datos.proyectoId,
       tareaId: datos.tareaId,
       descripcion: datos.descripcion,
       inicio: datos.inicio,
       fin: datos.fin,
+      ...(empleadoId !== undefined && { empleadoId }),
     };
     await pedirAlBackend<Registro>(ruta, {
       method,
