@@ -43,6 +43,43 @@ export function comienzoDelDia(fecha: string) {
   return `${fecha}T00:00:00${OFFSET}`;
 }
 
+export interface ParteDelDia {
+  fecha: string;
+  inicio: Date;
+  fin: Date;
+  segundos: number;
+}
+
+// Parte un registro en la medianoche (hora argentina): un pedazo por día.
+// Si se pasa un período, solo devuelve lo que cae dentro de él.
+// Lo usan los reportes y el aviso de la ventana de carga.
+export function partirEnDias(
+  inicio: Date | string,
+  fin: Date | string,
+  periodo?: { desde: Date | string; hasta: Date | string },
+): ParteDelDia[] {
+  let desde = new Date(inicio).getTime();
+  let hasta = new Date(fin).getTime();
+  if (periodo) {
+    desde = Math.max(desde, new Date(periodo.desde).getTime());
+    hasta = Math.min(hasta, new Date(periodo.hasta).getTime());
+  }
+  const partes: ParteDelDia[] = [];
+  while (desde < hasta) {
+    const fecha = fechaDe(new Date(desde));
+    const medianoche = Date.parse(comienzoDelDia(sumarDias(fecha, 1)));
+    const corte = Math.min(medianoche, hasta);
+    partes.push({
+      fecha,
+      inicio: new Date(desde),
+      fin: new Date(corte),
+      segundos: Math.round((corte - desde) / 1000),
+    });
+    desde = corte;
+  }
+  return partes;
+}
+
 // "14:05"
 export function formatearHora(momento: string) {
   return new Date(momento).toLocaleTimeString("es-AR", {

@@ -33,6 +33,9 @@ const conDuracion = <T extends { inicio: Date; fin: Date }>(r: T) => ({
 
 const esAdmin = (empleado: Empleado) => empleado.rol === Rol.ADMIN;
 
+// Un registro más largo es un error de carga (por ejemplo, la fecha de fin).
+const DURACION_MAXIMA_MS = 24 * 60 * 60 * 1000;
+
 interface DatosRegistro {
   empleadoId: number;
   proyectoId: number;
@@ -55,14 +58,18 @@ export class RegistrosService {
       }
       empleadoId = actual.id;
     }
+    const desde = filtros.desde ? new Date(filtros.desde) : undefined;
+    const hasta = filtros.hasta ? new Date(filtros.hasta) : undefined;
+    // Por defecto se filtra por la hora de inicio. Con "solapados", entra
+    // todo registro que tenga una parte dentro del período.
+    const periodo = filtros.solapados
+      ? { fin: { gt: desde }, inicio: { lt: hasta } }
+      : { inicio: { gte: desde, lt: hasta } };
     const registros = await this.prisma.registroTiempo.findMany({
       where: {
         empleadoId,
         proyectoId: filtros.proyectoId,
-        inicio: {
-          gte: filtros.desde ? new Date(filtros.desde) : undefined,
-          lt: filtros.hasta ? new Date(filtros.hasta) : undefined,
-        },
+        ...periodo,
       },
       include,
       orderBy: { inicio: 'desc' },
@@ -166,6 +173,11 @@ export class RegistrosService {
     if (datos.fin <= datos.inicio) {
       throw new BadRequestException(
         'La hora de fin tiene que ser posterior a la de inicio',
+      );
+    }
+    if (datos.fin.getTime() - datos.inicio.getTime() > DURACION_MAXIMA_MS) {
+      throw new BadRequestException(
+        'Un registro no puede durar más de 24 horas',
       );
     }
 

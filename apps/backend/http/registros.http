@@ -14,6 +14,10 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/registros?desde=2026-10-07T00:00:00-03:00&hasta=2026-10-08T00:00:00-03:00
 Authorization: Bearer {{token}}
 
+### Listar los registros que tocan un día, aunque hayan empezado antes (para reportes)
+GET {{baseUrl}}/registros?desde=2026-10-07T00:00:00-03:00&hasta=2026-10-08T00:00:00-03:00&solapados=true
+Authorization: Bearer {{token}}
+
 ### Listar los registros de un proyecto y un empleado (empleadoId: solo ADMIN)
 GET {{baseUrl}}/registros?proyectoId=1&empleadoId=1
 Authorization: Bearer {{token}}
@@ -101,4 +105,15 @@ Content-Type: application/json
   "proyectoId": 1,
   "inicio": "2026-10-07T09:00:00",
   "fin": "2026-10-07T10:00:00"
+}
+
+### Error esperado: dura más de 24 horas (400)
+POST {{baseUrl}}/registros
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "proyectoId": 1,
+  "inicio": "2026-10-07T09:00:00-03:00",
+  "fin": "2026-10-08T10:00:00-03:00"
 }

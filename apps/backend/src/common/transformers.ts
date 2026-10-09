@@ -9,3 +9,7 @@ export const normalizarEmail = ({ value }: { value: unknown }) =>
 // Textos opcionales: se recortan, y si quedan vacíos se guardan como null.
 export const trimONull = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() || null : value;
+
+// Los parámetros de la URL llegan como texto: "true"/"false" pasan a booleano.
+export const textoABooleano = ({ value }: { value: unknown }) =>
+  value === 'true' ? true : value === 'false' ? false : value;

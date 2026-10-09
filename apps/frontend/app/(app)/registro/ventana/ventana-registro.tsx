@@ -21,6 +21,8 @@ import {
   horaLocal,
   lunesDe,
   mismoDia,
+  partirEnDias,
+  tituloDelDia,
 } from "@/lib/fechas";
 import type { Proyecto, Registro } from "@simep/tipos";
 import { useDatosDeCarga } from "../datos-de-carga";
@@ -38,7 +40,10 @@ const PASOS = [
   { minutos: 60, texto: "+1h" },
 ];
 
-// Ventana "Nueva entrada de tiempo", o "Editar entrada de tiempo" si
+// Lo mismo que valida el backend: más de 24 h es un error de carga.
+const MAXIMO_MINUTOS = 24 * 60;
+
+// Ventana "Nueva entrada" de tiempo", o "Editar entrada de tiempo" si
 // recibe un registro. El fin no se guarda en el estado: se calcula como
 // inicio + duración, así cambiar uno mueve el otro.
 export function VentanaRegistro({
@@ -67,6 +72,8 @@ export function VentanaRegistro({
   );
   const [editando, setEditando] = useState<Editando>(null);
   const [error, setError] = useState<string | null>(null);
+  // Antes de guardar un registro que pasa la medianoche se pide confirmación.
+  const [confirmando, setConfirmando] = useState(false);
   const [guardando, startTransition] = useTransition();
 
   const titulo = registro ? "Editar entrada de tiempo" : "Nueva entrada de tiempo";
@@ -75,12 +82,17 @@ export function VentanaRegistro({
   const diasDespues = Math.round(
     (Date.parse(fechaLocal(fin)) - Date.parse(fechaLocal(inicio))) / 86_400_000,
   );
+  const demasiadoLargo = minutos > MAXIMO_MINUTOS;
+  // Cómo lo reparten los reportes. Terminar justo a las 00:00 no cuenta como
+  // pasar la medianoche: queda un solo pedazo.
+  const partes = partirEnDias(inicio, fin);
 
   // Cada cambio borra el aviso anterior (por ejemplo, el de superposición).
   function cambiar(accion: () => void) {
     accion();
     setError(null);
     setEditando(null);
+    setConfirmando(false);
   }
 
   const conHora = (dia: Date, h: number, m: number) =>
@@ -93,11 +105,16 @@ export function VentanaRegistro({
     setMinutos(Math.round((nuevoFin.getTime() - inicio.getTime()) / 60_000));
   }
 
-  function guardar() {
+  function guardar(confirmado = false) {
     if (proyectoId === null) {
       setError("Elegí un proyecto.");
       return;
     }
+    if (partes.length > 1 && !confirmado) {
+      setConfirmando(true);
+      return;
+    }
+    setConfirmando(false);
     startTransition(async () => {
       const cambios = {
         proyectoId,
@@ -257,6 +274,12 @@ export function VentanaRegistro({
             </button>
           ))}
         </div>
+        {demasiadoLargo && (
+          <p role="alert" className="mt-2 rounded-md bg-aviso-suave px-3 py-2 text-sm text-aviso">
+            Un registro no puede durar más de 24 horas. Revisá la duración o la
+            hora de fin.
+          </p>
+        )}
       </div>
 
       {error && (
@@ -265,23 +288,60 @@ export function VentanaRegistro({
         </p>
       )}
 
-      <div className="flex justify-end gap-2 px-5 py-3.5">
-        <button
-          type="button"
-          onClick={onCerrar}
-          className="rounded-md border border-linea px-4 py-1.5 text-sm text-tenue hover:bg-gris"
-        >
-          Cancelar
-        </button>
-        <button
-          type="button"
-          onClick={guardar}
-          disabled={minutos === 0 || guardando}
-          className="rounded-md bg-acento px-4 py-1.5 text-sm font-semibold text-superficie disabled:cursor-not-allowed disabled:opacity-45"
-        >
-          {guardando ? "Guardando…" : "Guardar"}
-        </button>
-      </div>
+      {confirmando ? (
+        <div role="alert" className="m-5 mt-3 rounded-md bg-aviso-suave px-4 py-3 text-sm">
+          <p className="font-semibold text-aviso">Este registro pasa la medianoche</p>
+          <p className="mt-1.5">
+            {fechaCortaLocal(inicio)} {horaLocal(inicio)} → {fechaCortaLocal(fin)}{" "}
+            {horaLocal(fin)} ({duracionLarga(minutos)} h)
+          </p>
+          <p className="mt-1.5 text-tenue">En los reportes cuenta así:</p>
+          <ul className="mt-0.5">
+            {partes.map((parte) => (
+              <li key={parte.fecha} className="flex justify-between gap-4">
+                <span>{tituloDelDia(parte.fecha)}</span>
+                <span className="font-mono tabular-nums">
+                  {duracionLarga(Math.round(parte.segundos / 60))}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirmando(false)}
+              className="rounded-md border border-linea bg-superficie px-4 py-1.5 text-tenue hover:bg-gris"
+            >
+              Corregir
+            </button>
+            <button
+              type="button"
+              onClick={() => guardar(true)}
+              className="rounded-md bg-acento px-4 py-1.5 font-semibold text-superficie"
+            >
+              Guardar igual
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex justify-end gap-2 px-5 py-3.5">
+          <button
+            type="button"
+            onClick={onCerrar}
+            className="rounded-md border border-linea px-4 py-1.5 text-sm text-tenue hover:bg-gris"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => guardar()}
+            disabled={minutos === 0 || demasiadoLargo || guardando}
+            className="rounded-md bg-acento px-4 py-1.5 text-sm font-semibold text-superficie disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            {guardando ? "Guardando…" : "Guardar"}
+          </button>
+        </div>
+      )}
 
       {editando === "inicio" && (
         <DialogoHoras

@@ -146,6 +146,22 @@ describe('RegistrosService', () => {
     ).rejects.toThrow(BadRequestException);
   });
 
+  it('acepta 24 h justas y rechaza un registro de más de 24 h (400)', async () => {
+    await expect(
+      service.create(ana, { ...nuevo, fin: '2026-10-08T09:00:00-03:00' }),
+    ).resolves.toMatchObject({ duracionSegundos: 86400 });
+    await expect(
+      service.create(ana, { ...nuevo, fin: '2026-10-08T09:01:00-03:00' }),
+    ).rejects.toThrow('Un registro no puede durar más de 24 horas');
+  });
+
+  it('al editar también rechaza un registro de más de 24 h (400)', async () => {
+    registros = [registro({})];
+    await expect(
+      service.update(ana, 1, { fin: '2026-10-09T09:00:00-03:00' }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
   it('rechaza un proyecto de un cliente archivado (400)', async () => {
     await expect(
       service.create(ana, { ...nuevo, proyectoId: 4 }),
@@ -212,6 +228,29 @@ describe('RegistrosService', () => {
     await expect(service.findAll(ana, { empleadoId: beto.id })).rejects.toThrow(
       ForbiddenException,
     );
+  });
+
+  it('por defecto, desde/hasta filtran por la hora de inicio', async () => {
+    const desde = '2026-10-12T00:00:00-03:00';
+    const hasta = '2026-10-19T00:00:00-03:00';
+    await service.findAll(ana, { desde, hasta });
+    expect(prisma.registroTiempo.findMany.mock.calls[0][0].where).toMatchObject(
+      { inicio: { gte: new Date(desde), lt: new Date(hasta) } },
+    );
+  });
+
+  it('con solapados, desde/hasta traen los registros que tocan el período', async () => {
+    // Un registro del domingo 11 de 23:00 a 01:00 entra en la semana del
+    // lunes 12 porque termina después de que ella empieza.
+    const desde = '2026-10-12T00:00:00-03:00';
+    const hasta = '2026-10-19T00:00:00-03:00';
+    await service.findAll(ana, { desde, hasta, solapados: true });
+    const where = prisma.registroTiempo.findMany.mock.calls[0][0].where;
+    expect(where).toMatchObject({
+      fin: { gt: new Date(desde) },
+      inicio: { lt: new Date(hasta) },
+    });
+    expect(where).not.toHaveProperty('inicio.gte');
   });
 
   it('al cambiar de proyecto, la tarea anterior deja de ser válida (400)', async () => {

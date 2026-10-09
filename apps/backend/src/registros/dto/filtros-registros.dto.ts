@@ -1,8 +1,10 @@
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsPositive } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsBoolean, IsInt, IsOptional, IsPositive } from 'class-validator';
+import { textoABooleano } from '../../common/transformers';
 import { IsFechaConZona } from '../../common/validadores';
 
-// GET /registros?desde=...&hasta=...&proyectoId=1&empleadoId=2 (todos opcionales).
+// GET /registros?desde=...&hasta=...&solapados=true&proyectoId=1&empleadoId=2
+// (todos opcionales).
 export class FiltrosRegistrosDto {
   // Registros que empiezan desde esta fecha (inclusive)...
   @IsOptional()
@@ -13,6 +15,13 @@ export class FiltrosRegistrosDto {
   @IsOptional()
   @IsFechaConZona()
   hasta?: string;
+
+  // Con true, desde/hasta traen los registros que tienen alguna parte
+  // dentro del período, aunque hayan empezado antes (para los reportes).
+  @IsOptional()
+  @Transform(textoABooleano)
+  @IsBoolean()
+  solapados?: boolean;
 
   @IsOptional()
   @Type(() => Number)
